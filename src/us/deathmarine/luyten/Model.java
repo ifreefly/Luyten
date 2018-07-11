@@ -98,7 +98,7 @@ public class Model extends JSplitPane {
 
 	public Model(MainWindow mainWindow) {
 		this.mainWindow = mainWindow;
-		this.bar = mainWindow.getBar();
+		this.bar = mainWindow.getProgressBar();
 		this.setLabel(mainWindow.getLabel());
 
 		configSaver = ConfigSaver.getLoadedInstance();
@@ -580,8 +580,8 @@ public class Model extends JSplitPane {
 		private static final long serialVersionUID = -514663009333644974L;
 		private JLabel closeButton = new JLabel(new ImageIcon(
 				Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/resources/icon_close.png"))));
-		private JLabel tabTitle = new JLabel();
-		private String title = "";
+		private JLabel tabTitle;
+		private String title;
 
 		public Tab(String t) {
 			super(new GridBagLayout());

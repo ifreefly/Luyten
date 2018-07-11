@@ -19,7 +19,7 @@ public class LuytenOsx extends Luyten {
 		Application app = new Application();
 		app.addApplicationListener(new ApplicationAdapter() {
 			public void handleOpenFile(ApplicationEvent e) {
-				Luyten.openFileInInstance(new File(e.getFilename()));
+				Luyten.processPendingFiles(new File(e.getFilename()));
 			}
 
 			public void handleQuit(ApplicationEvent e) {

@@ -41,7 +41,7 @@ public class MainWindow extends JFrame {
 	private static final String TITLE = "Luyten";
 
 	public static Model model;
-	private JProgressBar bar;
+	private JProgressBar progressBar;
 	private JLabel label;
 	FindBox findBox;
 	private FindAllBox findAllBox;
@@ -68,26 +68,25 @@ public class MainWindow extends JFrame {
 		this.setIconImage(new ImageIcon(
 				Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/resources/Luyten.png"))).getImage());
 
-		JPanel panel1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+
+		JPanel bottomStatusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		label = new JLabel();
 		label.setHorizontalAlignment(JLabel.LEFT);
-		panel1.setBorder(new BevelBorder(BevelBorder.LOWERED));
-		panel1.setPreferredSize(new Dimension(this.getWidth() / 2, 20));
-		panel1.add(label);
+		bottomStatusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
+		bottomStatusPanel.setPreferredSize(new Dimension(this.getWidth() / 2, 20));
+		bottomStatusPanel.add(label);
 
-		JPanel panel2 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		bar = new JProgressBar();
+		JPanel progressPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		progressBar = new JProgressBar();
 
-		bar.setStringPainted(true);
-		bar.setOpaque(false);
-		bar.setVisible(false);
-		panel2.setPreferredSize(new Dimension(this.getWidth() / 3, 20));
-		panel2.add(bar);
+		progressBar.setStringPainted(true);
+		progressBar.setOpaque(false);
+		progressBar.setVisible(false);
+		progressPanel.setPreferredSize(new Dimension(this.getWidth() / 3, 20));
+		progressPanel.add(progressBar);
 
-		model = new Model(this);
-		this.getContentPane().add(model);
-
-		JSplitPane spt = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel1, panel2) {
+		JSplitPane spt = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, bottomStatusPanel, progressPanel) {
 			private static final long serialVersionUID = 2189946972124687305L;
 			private final int location = 400;
 
@@ -108,6 +107,10 @@ public class MainWindow extends JFrame {
 		spt.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		spt.setPreferredSize(new Dimension(this.getWidth(), 24));
 		this.add(spt, BorderLayout.SOUTH);
+
+        model = new Model(this);
+        this.getContentPane().add(model);
+
 		if (fileFromCommandLine != null) {
 			model.loadFile(fileFromCommandLine);
 		}
@@ -121,7 +124,7 @@ public class MainWindow extends JFrame {
 		}
 
 		fileDialog = new FileDialog(this);
-		fileSaver = new FileSaver(bar, label);
+		fileSaver = new FileSaver(progressBar, label);
 
 		this.setExitOnEscWhenEnabled(model);
 
@@ -226,13 +229,13 @@ public class MainWindow extends JFrame {
 		new Thread() {
 			public void run() {
 				try {
-					bar.setVisible(true);
-					bar.setIndeterminate(true);
+					progressBar.setVisible(true);
+					progressBar.setIndeterminate(true);
 					String legalStr = getLegalStr();
 					MainWindow.this.getModel().showLegal(legalStr);
 				} finally {
-					bar.setIndeterminate(false);
-					bar.setVisible(false);
+					progressBar.setIndeterminate(false);
+					progressBar.setVisible(false);
 				}
 			}
 		}.start();
@@ -242,8 +245,8 @@ public class MainWindow extends JFrame {
 		try {
 			StringBuilder sb = new StringBuilder();
 			ClassLoader myCL = Thread.currentThread().getContextClassLoader();
-			bar.setVisible(true);
-			bar.setIndeterminate(true);
+			progressBar.setVisible(true);
+			progressBar.setIndeterminate(true);
 			while (myCL != null) {
 				sb.append("ClassLoader: " + myCL + "\n");
 				for (Iterator<?> iter = list(myCL); iter.hasNext();) {
@@ -253,8 +256,8 @@ public class MainWindow extends JFrame {
 			}
 			MainWindow.this.getModel().show("Debug", sb.toString());
 		} finally {
-			bar.setIndeterminate(false);
-			bar.setVisible(false);
+			progressBar.setIndeterminate(false);
+			progressBar.setVisible(false);
 		}
 	}
 
@@ -430,8 +433,8 @@ public class MainWindow extends JFrame {
 		return model;
 	}
 
-	public JProgressBar getBar() {
-		return bar;
+	public JProgressBar getProgressBar() {
+		return progressBar;
 	}
 
 	public JLabel getLabel() {
