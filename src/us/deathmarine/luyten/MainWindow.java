@@ -36,408 +36,407 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
  * Dispatcher
  */
 public class MainWindow extends JFrame {
-	private static final long serialVersionUID = 5265556630724988013L;
+    private static final long serialVersionUID = 5265556630724988013L;
 
-	private static final String TITLE = "Luyten";
+    private static final String TITLE = "Luyten";
 
-	public static Model model;
-	private JProgressBar progressBar;
-	private JLabel label;
-	FindBox findBox;
-	private FindAllBox findAllBox;
-	private ConfigSaver configSaver;
-	private WindowPosition windowPosition;
-	private LuytenPreferences luytenPrefs;
-	private FileDialog fileDialog;
-	private FileSaver fileSaver;
-	public MainMenuBar mainMenuBar;
+    public static Model model;
+    private JProgressBar progressBar;
+    private JLabel statusLabel;
+    FindBox findBox;
+    private FindAllBox findAllBox;
+    private ConfigSaver configSaver;
+    private WindowPosition windowPosition;
+    private LuytenPreferences luytenPrefs;
+    private FileDialog fileDialog;
+    private FileSaver fileSaver;
+    public MainMenuBar mainMenuBar;
 
-	public MainWindow(File fileFromCommandLine) {
-		configSaver = ConfigSaver.getLoadedInstance();
-		windowPosition = configSaver.getMainWindowPosition();
-		luytenPrefs = configSaver.getLuytenPreferences();
-		
-		mainMenuBar = new MainMenuBar(this);
-		this.setJMenuBar(mainMenuBar);
+    public MainWindow() {
+        configSaver = ConfigSaver.getLoadedInstance();
+        windowPosition = configSaver.getMainWindowPosition();
+        luytenPrefs = configSaver.getLuytenPreferences();
 
-		this.adjustWindowPositionBySavedState();
-		this.setHideFindBoxOnMainWindowFocus();
-		this.setShowFindAllBoxOnMainWindowFocus();
-		this.setQuitOnWindowClosing();
-		this.setTitle(TITLE);
-		this.setIconImage(new ImageIcon(
-				Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/resources/Luyten.png"))).getImage());
+        mainMenuBar = new MainMenuBar(this);
+        this.setJMenuBar(mainMenuBar);
+
+        this.adjustWindowPositionBySavedState();
+        this.setHideFindBoxOnMainWindowFocus();
+        this.setShowFindAllBoxOnMainWindowFocus();
+        this.setQuitOnWindowClosing();
+        this.setTitle(TITLE);
+        this.setIconImage(new ImageIcon(
+                Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/resources/Luyten.png"))).getImage());
 
 
-
-		JPanel bottomStatusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		label = new JLabel();
-		label.setHorizontalAlignment(JLabel.LEFT);
-		bottomStatusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
-		bottomStatusPanel.setPreferredSize(new Dimension(this.getWidth() / 2, 20));
-		bottomStatusPanel.add(label);
-
-		JPanel progressPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		progressBar = new JProgressBar();
-
-		progressBar.setStringPainted(true);
-		progressBar.setOpaque(false);
-		progressBar.setVisible(false);
-		progressPanel.setPreferredSize(new Dimension(this.getWidth() / 3, 20));
-		progressPanel.add(progressBar);
-
-		JSplitPane spt = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, bottomStatusPanel, progressPanel) {
-			private static final long serialVersionUID = 2189946972124687305L;
-			private final int location = 400;
-
-			{
-				setDividerLocation(location);
-			}
-
-			@Override
-			public int getDividerLocation() {
-				return location;
-			}
-
-			@Override
-			public int getLastDividerLocation() {
-				return location;
-			}
-		};
-		spt.setBorder(new BevelBorder(BevelBorder.LOWERED));
-		spt.setPreferredSize(new Dimension(this.getWidth(), 24));
-		this.add(spt, BorderLayout.SOUTH);
+        JSplitPane statusSplitPane = createStatusSplitPane();
+        this.add(statusSplitPane, BorderLayout.SOUTH);
 
         model = new Model(this);
         this.getContentPane().add(model);
 
-		if (fileFromCommandLine != null) {
-			model.loadFile(fileFromCommandLine);
-		}
+        try {
+            DropTarget dt = new DropTarget();
+            dt.addDropTargetListener(new DropListener(this));
+            this.setDropTarget(dt);
+        } catch (Exception e) {
+            Luyten.showExceptionDialog("Exception!", e);
+        }
 
-		try {
-			DropTarget dt = new DropTarget();
-			dt.addDropTargetListener(new DropListener(this));
-			this.setDropTarget(dt);
-		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
-		}
+        fileDialog = new FileDialog(this);
+        fileSaver = new FileSaver(progressBar, statusLabel);
 
-		fileDialog = new FileDialog(this);
-		fileSaver = new FileSaver(progressBar, label);
+        this.setExitOnEscWhenEnabled(model);
 
-		this.setExitOnEscWhenEnabled(model);
+        model.startWarmUpThread();
 
-		if (fileFromCommandLine == null || fileFromCommandLine.getName().toLowerCase().endsWith(".jar")
-				|| fileFromCommandLine.getName().toLowerCase().endsWith(".zip")) {
-			model.startWarmUpThread();
-		}
-		
-		if(RecentFiles.load() > 0) mainMenuBar.updateRecentFiles();
-	}
+        if (RecentFiles.load() > 0) mainMenuBar.updateRecentFiles();
+    }
 
-	public void onOpenFileMenu() {
-		File selectedFile = fileDialog.doOpenDialog();
-		if (selectedFile != null) {
-			System.out.println("[Open]: Opening " + selectedFile.getAbsolutePath());
-			
-			this.getModel().loadFile(selectedFile);
-		}
-	}
+    private JSplitPane createStatusSplitPane() {
+        statusLabel = new JLabel();
+        statusLabel.setHorizontalAlignment(JLabel.LEFT);
 
-	public void onCloseFileMenu() {
-		this.getModel().closeFile();
-	}
+        JPanel bottomStatusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        bottomStatusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        bottomStatusPanel.setPreferredSize(new Dimension(this.getWidth() / 2, 20));
+        bottomStatusPanel.add(statusLabel);
 
-	public void onSaveAsMenu() {
-		RSyntaxTextArea pane = this.getModel().getCurrentTextArea();
-		if (pane == null)
-			return;
-		String tabTitle = this.getModel().getCurrentTabTitle();
-		if (tabTitle == null)
-			return;
+        progressBar = new JProgressBar();
+        progressBar.setStringPainted(true);
+        progressBar.setOpaque(false);
+        progressBar.setVisible(false);
 
-		String recommendedFileName = tabTitle.replace(".class", ".java");
-		File selectedFile = fileDialog.doSaveDialog(recommendedFileName);
-		if (selectedFile != null) {
-			fileSaver.saveText(pane.getText(), selectedFile);
-		}
-	}
+        JPanel progressPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-	public void onSaveAllMenu() {
-		File openedFile = this.getModel().getOpenedFile();
-		if (openedFile == null)
-			return;
+        progressPanel.setPreferredSize(new Dimension(this.getWidth() / 3, 20));
+        progressPanel.add(progressBar);
 
-		String fileName = openedFile.getName();
-		if (fileName.endsWith(".class")) {
-			fileName = fileName.replace(".class", ".java");
-		} else if (fileName.toLowerCase().endsWith(".jar")) {
-			fileName = "decompiled-" + fileName.replaceAll("\\.[jJ][aA][rR]", ".zip");
-		} else {
-			fileName = "saved-" + fileName;
-		}
+        JSplitPane statusSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, bottomStatusPanel, progressPanel) {
+            private static final long serialVersionUID = 2189946972124687305L;
+            private final int location = 400;
 
-		File selectedFileToSave = fileDialog.doSaveAllDialog(fileName);
-		if (selectedFileToSave != null) {
-			fileSaver.saveAllDecompiled(openedFile, selectedFileToSave);
-		}
-	}
+            {
+                setDividerLocation(location);
+            }
 
-	public void onExitMenu() {
-		quit();
-	}
+            @Override
+            public int getDividerLocation() {
+                return location;
+            }
 
-	public void onSelectAllMenu() {
-		try {
-			RSyntaxTextArea pane = this.getModel().getCurrentTextArea();
-			if (pane != null) {
-				pane.requestFocusInWindow();
-				pane.setSelectionStart(0);
-				pane.setSelectionEnd(pane.getText().length());
-			}
-		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
-		}
-	}
+            @Override
+            public int getLastDividerLocation() {
+                return location;
+            }
+        };
+        statusSplitPane.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        statusSplitPane.setPreferredSize(new Dimension(this.getWidth(), 24));
+        return statusSplitPane;
+    }
 
-	public void onFindMenu() {
-		try {
-			RSyntaxTextArea pane = this.getModel().getCurrentTextArea();
-			if (pane != null) {
-				if (findBox == null)
-					findBox = new FindBox(this);
-				findBox.showFindBox();
-			}
-		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
-		}
-	}
+    public void onOpenFileMenu() {
+        File selectedFile = fileDialog.doOpenDialog();
+        if (selectedFile != null) {
+            System.out.println("[Open]: Opening " + selectedFile.getAbsolutePath());
 
-	public void onFindAllMenu() {
-		try {
-			if (findAllBox == null)
-				findAllBox = new FindAllBox(this);
-			findAllBox.showFindBox();
+            this.getModel().loadFile(selectedFile);
+        }
+    }
 
-		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
-		}
-	}
+    public void onCloseFileMenu() {
+        this.getModel().closeFile();
+    }
 
-	public void onLegalMenu() {
-		new Thread() {
-			public void run() {
-				try {
-					progressBar.setVisible(true);
-					progressBar.setIndeterminate(true);
-					String legalStr = getLegalStr();
-					MainWindow.this.getModel().showLegal(legalStr);
-				} finally {
-					progressBar.setIndeterminate(false);
-					progressBar.setVisible(false);
-				}
-			}
-		}.start();
-	}
+    public void onSaveAsMenu() {
+        RSyntaxTextArea pane = this.getModel().getCurrentTextArea();
+        if (pane == null)
+            return;
+        String tabTitle = this.getModel().getCurrentTabTitle();
+        if (tabTitle == null)
+            return;
 
-	public void onListLoadedClasses() {
-		try {
-			StringBuilder sb = new StringBuilder();
-			ClassLoader myCL = Thread.currentThread().getContextClassLoader();
-			progressBar.setVisible(true);
-			progressBar.setIndeterminate(true);
-			while (myCL != null) {
-				sb.append("ClassLoader: " + myCL + "\n");
-				for (Iterator<?> iter = list(myCL); iter.hasNext();) {
-					sb.append("\t" + iter.next() + "\n");
-				}
-				myCL = myCL.getParent();
-			}
-			MainWindow.this.getModel().show("Debug", sb.toString());
-		} finally {
-			progressBar.setIndeterminate(false);
-			progressBar.setVisible(false);
-		}
-	}
+        String recommendedFileName = tabTitle.replace(".class", ".java");
+        File selectedFile = fileDialog.doSaveDialog(recommendedFileName);
+        if (selectedFile != null) {
+            fileSaver.saveText(pane.getText(), selectedFile);
+        }
+    }
 
-	private static Iterator<?> list(ClassLoader CL) {
-		Class<?> CL_class = CL.getClass();
-		while (CL_class != java.lang.ClassLoader.class) {
-			CL_class = CL_class.getSuperclass();
-		}
-		java.lang.reflect.Field ClassLoader_classes_field;
-		try {
-			ClassLoader_classes_field = CL_class.getDeclaredField("classes");
-			ClassLoader_classes_field.setAccessible(true);
-			Vector<?> classes = (Vector<?>) ClassLoader_classes_field.get(CL);
-			return classes.iterator();
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			Luyten.showExceptionDialog("Exception!", e);
-		}
-		return null;
-	}
+    public void onSaveAllMenu() {
+        File openedFile = this.getModel().getOpenedFile();
+        if (openedFile == null)
+            return;
 
-	private String getLegalStr() {
-		StringBuilder sb = new StringBuilder();
-		try {
-			BufferedReader reader = new BufferedReader(
-					new InputStreamReader(getClass().getResourceAsStream("/distfiles/Procyon.License.txt")));
-			String line;
-			while ((line = reader.readLine()) != null)
-				sb.append(line).append("\n");
-			sb.append("\n\n\n\n\n");
-			reader = new BufferedReader(
-					new InputStreamReader(getClass().getResourceAsStream("/distfiles/RSyntaxTextArea.License.txt")));
-			while ((line = reader.readLine()) != null)
-				sb.append(line).append("\n");
-		} catch (IOException e) {
-			Luyten.showExceptionDialog("Exception!", e);
-		}
-		return sb.toString();
-	}
+        String fileName = openedFile.getName();
+        if (fileName.endsWith(".class")) {
+            fileName = fileName.replace(".class", ".java");
+        } else if (fileName.toLowerCase().endsWith(".jar")) {
+            fileName = "decompiled-" + fileName.replaceAll("\\.[jJ][aA][rR]", ".zip");
+        } else {
+            fileName = "saved-" + fileName;
+        }
 
-	public void onThemesChanged() {
-		this.getModel().changeTheme(luytenPrefs.getThemeXml());
-		luytenPrefs.setFont_size(this.getModel().getTheme().baseFont.getSize());
-	}
+        File selectedFileToSave = fileDialog.doSaveAllDialog(fileName);
+        if (selectedFileToSave != null) {
+            fileSaver.saveAllDecompiled(openedFile, selectedFileToSave);
+        }
+    }
 
-	public void onSettingsChanged() {
-		this.getModel().updateOpenClasses();
-	}
+    public void onExitMenu() {
+        quit();
+    }
 
-	public void onTreeSettingsChanged() {
-		this.getModel().updateTree();
-	}
+    public void onSelectAllMenu() {
+        try {
+            RSyntaxTextArea pane = this.getModel().getCurrentTextArea();
+            if (pane != null) {
+                pane.requestFocusInWindow();
+                pane.setSelectionStart(0);
+                pane.setSelectionEnd(pane.getText().length());
+            }
+        } catch (Exception e) {
+            Luyten.showExceptionDialog("Exception!", e);
+        }
+    }
 
-	public void onFileDropped(File file) {
-		if (file != null) {
-			this.getModel().loadFile(file);
-		}
-	}
+    public void onFindMenu() {
+        try {
+            RSyntaxTextArea pane = this.getModel().getCurrentTextArea();
+            if (pane != null) {
+                if (findBox == null)
+                    findBox = new FindBox(this);
+                findBox.showFindBox();
+            }
+        } catch (Exception e) {
+            Luyten.showExceptionDialog("Exception!", e);
+        }
+    }
 
-	public void onFileLoadEnded(File file, boolean isSuccess) {
-		try {
-			if (file != null && isSuccess) {
-				this.setTitle(TITLE + " - " + file.getName());
-			} else {
-				this.setTitle(TITLE);
-			}
-		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
-		}
-	}
+    public void onFindAllMenu() {
+        try {
+            if (findAllBox == null)
+                findAllBox = new FindAllBox(this);
+            findAllBox.showFindBox();
 
-	public void onNavigationRequest(String uniqueStr) {
-		this.getModel().navigateTo(uniqueStr);
-	}
+        } catch (Exception e) {
+            Luyten.showExceptionDialog("Exception!", e);
+        }
+    }
 
-	private void adjustWindowPositionBySavedState() {
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		if (!windowPosition.isSavedWindowPositionValid()) {
-			final Dimension center = new Dimension((int) (screenSize.width * 0.75), (int) (screenSize.height * 0.75));
-			final int x = (int) (center.width * 0.2);
-			final int y = (int) (center.height * 0.2);
-			this.setBounds(x, y, center.width, center.height);
+    public void onLegalMenu() {
+        new Thread() {
+            public void run() {
+                try {
+                    progressBar.setVisible(true);
+                    progressBar.setIndeterminate(true);
+                    String legalStr = getLegalStr();
+                    MainWindow.this.getModel().showLegal(legalStr);
+                } finally {
+                    progressBar.setIndeterminate(false);
+                    progressBar.setVisible(false);
+                }
+            }
+        }.start();
+    }
 
-		} else if (windowPosition.isFullScreen()) {
-			int heightMinusTray = screenSize.height;
-			if (screenSize.height > 30)
-				heightMinusTray -= 30;
-			this.setBounds(0, 0, screenSize.width, heightMinusTray);
-			this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+    public void onListLoadedClasses() {
+        try {
+            StringBuilder sb = new StringBuilder();
+            ClassLoader myCL = Thread.currentThread().getContextClassLoader();
+            progressBar.setVisible(true);
+            progressBar.setIndeterminate(true);
+            while (myCL != null) {
+                sb.append("ClassLoader: " + myCL + "\n");
+                for (Iterator<?> iter = list(myCL); iter.hasNext(); ) {
+                    sb.append("\t" + iter.next() + "\n");
+                }
+                myCL = myCL.getParent();
+            }
+            MainWindow.this.getModel().show("Debug", sb.toString());
+        } finally {
+            progressBar.setIndeterminate(false);
+            progressBar.setVisible(false);
+        }
+    }
 
-			this.addComponentListener(new ComponentAdapter() {
-				@Override
-				public void componentResized(ComponentEvent e) {
-					if (MainWindow.this.getExtendedState() != JFrame.MAXIMIZED_BOTH) {
-						windowPosition.setFullScreen(false);
-						if (windowPosition.isSavedWindowPositionValid()) {
-							MainWindow.this.setBounds(windowPosition.getWindowX(), windowPosition.getWindowY(),
-									windowPosition.getWindowWidth(), windowPosition.getWindowHeight());
-						}
-						MainWindow.this.removeComponentListener(this);
-					}
-				}
-			});
+    private static Iterator<?> list(ClassLoader CL) {
+        Class<?> CL_class = CL.getClass();
+        while (CL_class != java.lang.ClassLoader.class) {
+            CL_class = CL_class.getSuperclass();
+        }
+        java.lang.reflect.Field ClassLoader_classes_field;
+        try {
+            ClassLoader_classes_field = CL_class.getDeclaredField("classes");
+            ClassLoader_classes_field.setAccessible(true);
+            Vector<?> classes = (Vector<?>) ClassLoader_classes_field.get(CL);
+            return classes.iterator();
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            Luyten.showExceptionDialog("Exception!", e);
+        }
+        return null;
+    }
 
-		} else {
-			this.setBounds(windowPosition.getWindowX(), windowPosition.getWindowY(), windowPosition.getWindowWidth(),
-					windowPosition.getWindowHeight());
-		}
-	}
+    private String getLegalStr() {
+        StringBuilder sb = new StringBuilder();
+        try {
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(getClass().getResourceAsStream("/distfiles/Procyon.License.txt")));
+            String line;
+            while ((line = reader.readLine()) != null)
+                sb.append(line).append("\n");
+            sb.append("\n\n\n\n\n");
+            reader = new BufferedReader(
+                    new InputStreamReader(getClass().getResourceAsStream("/distfiles/RSyntaxTextArea.License.txt")));
+            while ((line = reader.readLine()) != null)
+                sb.append(line).append("\n");
+        } catch (IOException e) {
+            Luyten.showExceptionDialog("Exception!", e);
+        }
+        return sb.toString();
+    }
 
-	private void setHideFindBoxOnMainWindowFocus() {
-		this.addWindowFocusListener(new WindowAdapter() {
-			@Override
-			public void windowGainedFocus(WindowEvent e) {
-				if (findBox != null && findBox.isVisible()) {
-					findBox.setVisible(false);
-				}
-			}
-		});
-	}
+    public void onThemesChanged() {
+        this.getModel().changeTheme(luytenPrefs.getThemeXml());
+        luytenPrefs.setFont_size(this.getModel().getTheme().baseFont.getSize());
+    }
 
-	private void setShowFindAllBoxOnMainWindowFocus() {
-		this.addWindowFocusListener(new WindowAdapter() {
-			@Override
-			public void windowGainedFocus(WindowEvent e) {
-				if (findAllBox != null && findAllBox.isVisible()) {
-					findAllBox.setVisible(false);
-				}
-			}
-		});
-	}
+    public void onSettingsChanged() {
+        this.getModel().updateOpenClasses();
+    }
 
-	private void setQuitOnWindowClosing() {
-		this.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				quit();
-			}
-		});
-	}
+    public void onTreeSettingsChanged() {
+        this.getModel().updateTree();
+    }
 
-	private void quit() {
-		try {
-			windowPosition.readPositionFromWindow(this);
-			configSaver.saveConfig();
-		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
-		} finally {
-			try {
-				this.dispose();
-			} finally {
-				System.exit(0);
-			}
-		}
-	}
+    public void onFileDropped(File file) {
+        if (file != null) {
+            this.getModel().loadFile(file);
+        }
+    }
 
-	private void setExitOnEscWhenEnabled(JComponent mainComponent) {
-		Action escapeAction = new AbstractAction() {
-			private static final long serialVersionUID = -3460391555954575248L;
+    public void onFileLoadEnded(File file, boolean isSuccess) {
+        try {
+            if (file != null && isSuccess) {
+                this.setTitle(TITLE + " - " + file.getName());
+            } else {
+                this.setTitle(TITLE);
+            }
+        } catch (Exception e) {
+            Luyten.showExceptionDialog("Exception!", e);
+        }
+    }
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (luytenPrefs.isExitByEscEnabled()) {
-					quit();
-				}
-			}
-		};
-		KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
-		mainComponent.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(escapeKeyStroke, "ESCAPE");
-		mainComponent.getActionMap().put("ESCAPE", escapeAction);
-	}
+    public void onNavigationRequest(String uniqueStr) {
+        this.getModel().navigateTo(uniqueStr);
+    }
 
-	public Model getModel() {
-		return model;
-	}
+    private void adjustWindowPositionBySavedState() {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        if (!windowPosition.isSavedWindowPositionValid()) {
+            final Dimension center = new Dimension((int) (screenSize.width * 0.75), (int) (screenSize.height * 0.75));
+            final int x = (int) (center.width * 0.2);
+            final int y = (int) (center.height * 0.2);
+            this.setBounds(x, y, center.width, center.height);
 
-	public JProgressBar getProgressBar() {
-		return progressBar;
-	}
+        } else if (windowPosition.isFullScreen()) {
+            int heightMinusTray = screenSize.height;
+            if (screenSize.height > 30)
+                heightMinusTray -= 30;
+            this.setBounds(0, 0, screenSize.width, heightMinusTray);
+            this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-	public JLabel getLabel() {
-		return label;
-	}
+            this.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    if (MainWindow.this.getExtendedState() != JFrame.MAXIMIZED_BOTH) {
+                        windowPosition.setFullScreen(false);
+                        if (windowPosition.isSavedWindowPositionValid()) {
+                            MainWindow.this.setBounds(windowPosition.getWindowX(), windowPosition.getWindowY(),
+                                    windowPosition.getWindowWidth(), windowPosition.getWindowHeight());
+                        }
+                        MainWindow.this.removeComponentListener(this);
+                    }
+                }
+            });
+
+        } else {
+            this.setBounds(windowPosition.getWindowX(), windowPosition.getWindowY(), windowPosition.getWindowWidth(),
+                    windowPosition.getWindowHeight());
+        }
+    }
+
+    private void setHideFindBoxOnMainWindowFocus() {
+        this.addWindowFocusListener(new WindowAdapter() {
+            @Override
+            public void windowGainedFocus(WindowEvent e) {
+                if (findBox != null && findBox.isVisible()) {
+                    findBox.setVisible(false);
+                }
+            }
+        });
+    }
+
+    private void setShowFindAllBoxOnMainWindowFocus() {
+        this.addWindowFocusListener(new WindowAdapter() {
+            @Override
+            public void windowGainedFocus(WindowEvent e) {
+                if (findAllBox != null && findAllBox.isVisible()) {
+                    findAllBox.setVisible(false);
+                }
+            }
+        });
+    }
+
+    private void setQuitOnWindowClosing() {
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                quit();
+            }
+        });
+    }
+
+    private void quit() {
+        try {
+            windowPosition.readPositionFromWindow(this);
+            configSaver.saveConfig();
+        } catch (Exception e) {
+            Luyten.showExceptionDialog("Exception!", e);
+        } finally {
+            try {
+                this.dispose();
+            } finally {
+                System.exit(0);
+            }
+        }
+    }
+
+    private void setExitOnEscWhenEnabled(JComponent mainComponent) {
+        Action escapeAction = new AbstractAction() {
+            private static final long serialVersionUID = -3460391555954575248L;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (luytenPrefs.isExitByEscEnabled()) {
+                    quit();
+                }
+            }
+        };
+        KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+        mainComponent.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(escapeKeyStroke, "ESCAPE");
+        mainComponent.getActionMap().put("ESCAPE", escapeAction);
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
+    public JProgressBar getProgressBar() {
+        return progressBar;
+    }
+
+    public JLabel getStatusLabel() {
+        return statusLabel;
+    }
 }

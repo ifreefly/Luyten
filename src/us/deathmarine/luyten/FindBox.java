@@ -148,7 +148,7 @@ public class FindBox extends JDialog {
 					pane.setSelectionStart(0);
 					pane.setSelectionEnd(0);
 				} else {
-					mainWindow.getLabel().setText("Search Complete");
+					mainWindow.getStatusLabel().setText("Search Complete");
 				}
 			}
 		}
@@ -222,7 +222,7 @@ public class FindBox extends JDialog {
 					pane.setSelectionStart(0);
 					pane.setSelectionEnd(0);
 				} else {
-					mainWindow.getLabel().setText("Search Complete");
+					mainWindow.getStatusLabel().setText("Search Complete");
 				}
 			}
 

@@ -53,7 +53,7 @@ public class Luyten {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                    mainWindowRef.compareAndSet(null, new MainWindow(fileFromCommandLine));
+                    mainWindowRef.compareAndSet(null, new MainWindow());
                         // Already set - so add the files to open
                     processPendingFiles(fileFromCommandLine);
                     mainWindowRef.get().setVisible(true);

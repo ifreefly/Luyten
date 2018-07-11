@@ -99,7 +99,7 @@ public class Model extends JSplitPane {
 	public Model(MainWindow mainWindow) {
 		this.mainWindow = mainWindow;
 		this.bar = mainWindow.getProgressBar();
-		this.setLabel(mainWindow.getLabel());
+		this.setLabel(mainWindow.getStatusLabel());
 
 		configSaver = ConfigSaver.getLoadedInstance();
 		settings = configSaver.getDecompilerSettings();

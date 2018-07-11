@@ -409,7 +409,7 @@ public class OpenFile implements SyntaxConstants {
 					textArea.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 				}
 
-				JLabel label = OpenFile.this.mainWindow.getLabel();
+				JLabel label = OpenFile.this.mainWindow.getStatusLabel();
 
 				if (isLinkLabel && isLinkLabelPrev) {
 					if (!linkText.equals(prevLinkText)) {
@@ -668,7 +668,7 @@ public class OpenFile implements SyntaxConstants {
 		} else if (linkProvider.isLinkNavigable(clickedReferenceUniqueStr)) {
 			onOutboundNavigationRequest(clickedReferenceUniqueStr);
 		} else {
-			JLabel label = this.mainWindow.getLabel();
+			JLabel label = this.mainWindow.getStatusLabel();
 			if (label == null)
 				return;
 			String[] linkParts = clickedReferenceUniqueStr.split("\\|");
