@@ -1,10 +1,21 @@
-Luyten
+ng-jd-gui
 ======
-**One of the Best**  
-Java Decompiler Gui for Procyon  
-Apache License, Version 2.0
+**Another Java Decompiler**  
+Java Decompiler Gui for Procyon   
+The project forks from [Luyten](https://github.com/deathmarine/Luyten), and now it support decompile mutli file
+ in one program.  
+Some osx features works well in Luyten, it may not works in this project. If everything works 
+well in osx, it is not intend.
+     
+Apache License, Version 2.0  
 
-[![Releases](https://img.shields.io/github/downloads/deathmarine/luyten/total.svg)](https://github.com/deathmarine/Luyten/releases)
+## Download
+[Release](https://github.com/ifreefly/ng-jd-gui/releases)
+
+## Environment
+* Java 8. It was develop under Java 8
+* It was tested on windows 10(x64). Some osx feature from Luyten may not work because I do not have osx to test.
+
 ## Compilation
 *****
 
@@ -14,17 +25,20 @@ We use maven to handle our dependencies.
 * Clone this repo and: `mvn clean install`
 
 ## Screenshot
-![Screen](https://i.imgur.com/phc59W6.png)
+![Screen](doc/resource/screenshot.png)
 
 ### Downloads
-[Releases](https://github.com/deathmarine/Luyten/releases/latest)  
+[Releases](https://github.com/ifreefly/ng-jd-gui/releases)  
 
 ### Bugs/Suggestions
-[Issues](https://github.com/deathmarine/Luyten/issues)  
+[Issues](https://github.com/ifreefly/ng-jd-gui/issues)  
 
 
 ## Powered by 
 *****
+### Luyten
+&copy; 2018 deathmarine 
+[https://github.com/deathmarine/Luyten](https://github.com/deathmarine/Luyten)
 
 ### Procyon
 &copy; 2015 Mike Strobel  

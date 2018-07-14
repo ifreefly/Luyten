@@ -32,7 +32,7 @@ import java.util.Vector;
 public class MainWindow extends JFrame {
     private static final long serialVersionUID = 5265556630724988013L;
 
-    private static final String TITLE = "Luyten";
+    private static final String TITLE = "jd-guin";
 
     private JProgressBar progressBar;
     private JLabel statusLabel;
