@@ -59,7 +59,6 @@ public class MainWindow extends JFrame {
 
         mainMenuBar = new MainMenuBar(this);
         this.setJMenuBar(mainMenuBar);
-
         this.adjustWindowPositionBySavedState();
         this.setHideFindBoxOnMainWindowFocus();
         this.setShowFindAllBoxOnMainWindowFocus();

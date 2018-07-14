@@ -1,21 +1,9 @@
 package us.deathmarine.luyten;
 
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.net.URI;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.ListIterator;
-import java.util.Map;
+import com.strobel.Procyon;
+import com.strobel.decompiler.DecompilerSettings;
+import com.strobel.decompiler.languages.Language;
+import com.strobel.decompiler.languages.Languages;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
@@ -33,673 +21,716 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
-
-import com.strobel.Procyon;
-import com.strobel.decompiler.DecompilerSettings;
-import com.strobel.decompiler.languages.Language;
-import com.strobel.decompiler.languages.Languages;
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.ListIterator;
+import java.util.Map;
 
 /**
  * Main menu (only MainWindow should be called from here)
  */
 public class MainMenuBar extends JMenuBar {
-	private static final long serialVersionUID = -7949855817172562075L;
-	private final MainWindow mainWindow;
-	private final Map<String, Language> languageLookup = new HashMap<String, Language>();
+    private static final long serialVersionUID = -7949855817172562075L;
+    private final MainWindow mainWindow;
+    private final Map<String, Language> languageLookup = new HashMap<String, Language>();
 
-	private JMenu recentFiles;
-	private JMenuItem clearRecentFiles;
-	private JCheckBox flattenSwitchBlocks;
-	private JCheckBox forceExplicitImports;
-	private JCheckBox forceExplicitTypes;
-	private JCheckBox showSyntheticMembers;
-	private JCheckBox excludeNestedTypes;
-	private JCheckBox retainRedundantCasts;
-	private JCheckBox unicodeReplacement;
-	private JCheckBox debugLineNumbers;
-	private JCheckBox showDebugInfo;
-	private JCheckBox bytecodeLineNumbers;
-	private JRadioButtonMenuItem java;
-	private JRadioButtonMenuItem bytecode;
-	private JRadioButtonMenuItem bytecodeAST;
-	private ButtonGroup languagesGroup;
-	private ButtonGroup themesGroup;
-	private JCheckBox packageExplorerStyle;
-	private JCheckBox filterOutInnerClassEntries;
-	private JCheckBox singleClickOpenEnabled;
-	private JCheckBox exitByEscEnabled;
-	private DecompilerSettings settings;
-	private LuytenPreferences luytenPrefs;
+    private JMenu recentFiles;
+    private JMenuItem clearRecentFiles;
+    private JCheckBox flattenSwitchBlocks;
+    private JCheckBox forceExplicitImports;
+    private JCheckBox forceExplicitTypes;
+    private JCheckBox showSyntheticMembers;
+    private JCheckBox excludeNestedTypes;
+    private JCheckBox retainRedundantCasts;
+    private JCheckBox unicodeReplacement;
+    private JCheckBox debugLineNumbers;
+    private JCheckBox showDebugInfo;
+    private JCheckBox bytecodeLineNumbers;
+    private JRadioButtonMenuItem java;
+    private JRadioButtonMenuItem bytecode;
+    private JRadioButtonMenuItem bytecodeAST;
+    private ButtonGroup languagesGroup;
+    private ButtonGroup themesGroup;
+    private JCheckBox packageExplorerStyle;
+    private JCheckBox filterOutInnerClassEntries;
+    private JCheckBox singleClickOpenEnabled;
+    private JCheckBox exitByEscEnabled;
+    private DecompilerSettings settings;
+    private LuytenPreferences luytenPrefs;
 
-	public MainMenuBar(MainWindow mainWnd) {
-		this.mainWindow = mainWnd;
-		final ConfigSaver configSaver = ConfigSaver.getLoadedInstance();
-		settings = configSaver.getDecompilerSettings();
-		luytenPrefs = configSaver.getLuytenPreferences();
+    public MainMenuBar(MainWindow mainWnd) {
+        this.mainWindow = mainWnd;
+        final ConfigSaver configSaver = ConfigSaver.getLoadedInstance();
+        settings = configSaver.getDecompilerSettings();
+        luytenPrefs = configSaver.getLuytenPreferences();
 
-		final JMenu fileMenu = new JMenu("File");
-		fileMenu.add(new JMenuItem("..."));
-		this.add(fileMenu);
-		final JMenu editMenu = new JMenu("Edit");
-		editMenu.add(new JMenuItem("..."));
-		this.add(editMenu);
-		final JMenu themesMenu = new JMenu("Themes");
-		themesMenu.add(new JMenuItem("..."));
-		this.add(themesMenu);
-		final JMenu operationMenu = new JMenu("Operation");
-		operationMenu.add(new JMenuItem("..."));
-		this.add(operationMenu);
-		final JMenu settingsMenu = new JMenu("Settings");
-		settingsMenu.add(new JMenuItem("..."));
-		this.add(settingsMenu);
-		final JMenu helpMenu = new JMenu("Help");
-		helpMenu.add(new JMenuItem("..."));
-		this.add(helpMenu);
+        final JMenu fileMenu = new JMenu("File");
+        fileMenu.add(new JMenuItem("..."));
+        this.add(fileMenu);
+        final JMenu editMenu = new JMenu("Edit");
+        editMenu.add(new JMenuItem("..."));
+        this.add(editMenu);
+        final JMenu themesMenu = new JMenu("Themes");
+        themesMenu.add(new JMenuItem("..."));
+        this.add(themesMenu);
+        final JMenu operationMenu = new JMenu("Operation");
+        operationMenu.add(new JMenuItem("..."));
+        this.add(operationMenu);
+        final JMenu settingsMenu = new JMenu("Settings");
+        settingsMenu.add(new JMenuItem("..."));
+        this.add(settingsMenu);
+        final JMenu helpMenu = new JMenu("Help");
+        helpMenu.add(new JMenuItem("..."));
+        this.add(helpMenu);
 
-		// start quicker
-		new Thread() {
-			public void run() {
-				try {
-					// build menu later
-					buildFileMenu(fileMenu);
-					refreshMenuPopup(fileMenu);
+        // start quicker
+        new Thread() {
+            public void run() {
+                try {
+                    // build menu later
+                    buildFileMenu(fileMenu);
+                    refreshMenuPopup(fileMenu);
 
-					buildEditMenu(editMenu);
-					refreshMenuPopup(editMenu);
+                    buildEditMenu(editMenu);
+                    refreshMenuPopup(editMenu);
 
-					buildThemesMenu(themesMenu);
-					refreshMenuPopup(themesMenu);
+                    buildThemesMenu(themesMenu);
+                    refreshMenuPopup(themesMenu);
 
-					buildOperationMenu(operationMenu);
-					refreshMenuPopup(operationMenu);
+                    buildOperationMenu(operationMenu);
+                    refreshMenuPopup(operationMenu);
 
-					buildSettingsMenu(settingsMenu, configSaver);
-					refreshMenuPopup(settingsMenu);
+                    buildSettingsMenu(settingsMenu, configSaver);
+                    refreshMenuPopup(settingsMenu);
 
-					buildHelpMenu(helpMenu);
-					refreshMenuPopup(helpMenu);
-					
-					updateRecentFiles();
-				} catch (Exception e) {
-					Luyten.showExceptionDialog("Exception!", e);
-				}
-			}
+                    buildHelpMenu(helpMenu);
+                    refreshMenuPopup(helpMenu);
 
-			// refresh currently opened menu
-			// (if user selected a menu before it was ready)
-			private void refreshMenuPopup(JMenu menu) {
-				try {
-					if (menu.isPopupMenuVisible()) {
-						menu.getPopupMenu().setVisible(false);
-						menu.getPopupMenu().setVisible(true);
-					}
-				} catch (Exception e) {
-					Luyten.showExceptionDialog("Exception!", e);
-				}
-			}
-		}.start();
-	}
+                    updateRecentFiles();
+                } catch (Exception e) {
+                    Luyten.showExceptionDialog("Exception!", e);
+                }
+            }
 
-	public void updateRecentFiles() {
-		if (RecentFiles.paths.isEmpty()) {
-			recentFiles.setEnabled(false);
-			clearRecentFiles.setEnabled(false);
-			return;
-		} else {
-			recentFiles.setEnabled(true);
-			clearRecentFiles.setEnabled(true);
-		}
-		
-		recentFiles.removeAll();
-		ListIterator<String> li = RecentFiles.paths.listIterator(RecentFiles.paths.size());
-		boolean rfSaveNeeded = false;
-		
-		while (li.hasPrevious()) {
-			String path = li.previous();
-			final File file = new File(path);
-			
-			if (!file.exists()) {
-				rfSaveNeeded = true;
-				continue;
-			}
-			
-			JMenuItem menuItem = new JMenuItem(path);
-			menuItem.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					mainWindow.getModel().loadFile(file);
-				}
-			});
-			recentFiles.add(menuItem);
-		}
-		
-		if (rfSaveNeeded) RecentFiles.save();
-	}
-	
-	private void buildFileMenu(final JMenu fileMenu) {
-		fileMenu.removeAll();
-		JMenuItem menuItem = new JMenuItem("Open File...");
-		menuItem.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mainWindow.onOpenFileMenu();
-			}
-		});
-		fileMenu.add(menuItem);
-		fileMenu.addSeparator();
+            // refresh currently opened menu
+            // (if user selected a menu before it was ready)
+            private void refreshMenuPopup(JMenu menu) {
+                try {
+                    if (menu.isPopupMenuVisible()) {
+                        menu.getPopupMenu().setVisible(false);
+                        menu.getPopupMenu().setVisible(true);
+                    }
+                } catch (Exception e) {
+                    Luyten.showExceptionDialog("Exception!", e);
+                }
+            }
+        }.start();
+    }
 
-		menuItem = new JMenuItem("Close File");
-		menuItem.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JTabbedPane house = mainWindow.getModel().house;
-				
-				if (e.getModifiers() != 2 || house.getTabCount() == 0)
-					mainWindow.onCloseFileMenu();
-				else {
-					mainWindow.getModel().closeOpenTab(house.getSelectedIndex());
-				}
-			}
-		});
-		fileMenu.add(menuItem);
-		fileMenu.addSeparator();
+    public void updateRecentFiles() {
+        if (RecentFiles.paths.isEmpty()) {
+            recentFiles.setEnabled(false);
+            clearRecentFiles.setEnabled(false);
+            return;
+        } else {
+            recentFiles.setEnabled(true);
+            clearRecentFiles.setEnabled(true);
+        }
 
-		menuItem = new JMenuItem("Save As...");
-		menuItem.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mainWindow.onSaveAsMenu();
-			}
-		});
-		fileMenu.add(menuItem);
+        recentFiles.removeAll();
+        ListIterator<String> li = RecentFiles.paths.listIterator(RecentFiles.paths.size());
+        boolean rfSaveNeeded = false;
 
-		menuItem = new JMenuItem("Save All...");
-		menuItem.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mainWindow.onSaveAllMenu();
-			}
-		});
-		fileMenu.add(menuItem);
-		fileMenu.addSeparator();
+        while (li.hasPrevious()) {
+            String path = li.previous();
+            final File file = new File(path);
 
-		recentFiles = new JMenu("Recent Files");
-		fileMenu.add(recentFiles);
-		
-		clearRecentFiles = new JMenuItem("Clear Recent Files");
-		clearRecentFiles.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				RecentFiles.paths.clear();
-				RecentFiles.save();
-				updateRecentFiles();
-			}
-		});
-		fileMenu.add(clearRecentFiles);
-		
-		fileMenu.addSeparator();
+            if (!file.exists()) {
+                rfSaveNeeded = true;
+                continue;
+            }
 
-		// Only add the exit command for non-OS X. OS X handles its close
-		// automatically
-		if (!("true".equals(System.getProperty("us.deathmarine.luyten.Luyten.running_in_osx")))) {
-			menuItem = new JMenuItem("Exit");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
-			menuItem.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					mainWindow.onExitMenu();
-				}
-			});
-			fileMenu.add(menuItem);
-		}
-	}
+            JMenuItem menuItem = new JMenuItem(path);
+            menuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    mainWindow.getModel().loadFile(file);
+                }
+            });
+            recentFiles.add(menuItem);
+        }
 
-	private void buildEditMenu(JMenu editMenu) {
-		editMenu.removeAll();
-		JMenuItem menuItem = new JMenuItem("Cut");
-		menuItem.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		menuItem.setEnabled(false);
-		editMenu.add(menuItem);
+        if (rfSaveNeeded) RecentFiles.save();
+    }
 
-		menuItem = new JMenuItem("Copy");
-		menuItem.addActionListener(new DefaultEditorKit.CopyAction());
-		menuItem.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		editMenu.add(menuItem);
+    private void buildFileMenu(final JMenu fileMenu) {
+        fileMenu.removeAll();
+        fileMenu.add(createOpenFileItem(fileMenu));
+        fileMenu.addSeparator();
 
-		menuItem = new JMenuItem("Paste");
-		menuItem.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		menuItem.setEnabled(false);
-		editMenu.add(menuItem);
+        fileMenu.add(createCloseFileItem());
+        fileMenu.addSeparator();
 
-		editMenu.addSeparator();
+        fileMenu.add(createSaveAsItem());
 
-		menuItem = new JMenuItem("Select All");
-		menuItem.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mainWindow.onSelectAllMenu();
-			}
-		});
-		editMenu.add(menuItem);
-		editMenu.addSeparator();
+        fileMenu.add(createSaveAllItem());
+        fileMenu.addSeparator();
 
-		menuItem = new JMenuItem("Find...");
-		menuItem.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mainWindow.onFindMenu();
-			}
-		});
-		editMenu.add(menuItem);
-		
-		menuItem = new JMenuItem("Find Next");
-		menuItem.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(mainWindow.findBox != null) mainWindow.findBox.fireExploreAction(true);
-			}
-		});
-		editMenu.add(menuItem);
-		
-		menuItem = new JMenuItem("Find Previous");
-		menuItem.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_F3, InputEvent.SHIFT_DOWN_MASK));
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(mainWindow.findBox != null) mainWindow.findBox.fireExploreAction(false);
-			}
-		});
-		editMenu.add(menuItem);
+        recentFiles = new JMenu("Recent Files");
+        fileMenu.add(recentFiles);
 
-		menuItem = new JMenuItem("Find All");
-		menuItem.setAccelerator(
-				KeyStroke.getKeyStroke(KeyEvent.VK_G, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mainWindow.onFindAllMenu();
+        clearRecentFiles = createClearRencentItem();
+        fileMenu.add(clearRecentFiles);
 
-			}
-		});
-		editMenu.add(menuItem);
-	}
+        fileMenu.addSeparator();
 
-	private void buildThemesMenu(JMenu themesMenu) {
-		themesMenu.removeAll();
-		themesGroup = new ButtonGroup();
-		JRadioButtonMenuItem a = new JRadioButtonMenuItem(new ThemeAction("Default", "default.xml"));
-		a.setSelected("default.xml".equals(luytenPrefs.getThemeXml()));
-		themesGroup.add(a);
-		themesMenu.add(a);
+        // Only add the exit command for non-OS X. OS X handles its close
+        // automatically
+        if (!("true".equals(System.getProperty("us.deathmarine.luyten.Luyten.running_in_osx")))) {
+            fileMenu.add(createExitItem());
+        }
+    }
 
-		a = new JRadioButtonMenuItem(new ThemeAction("Default-Alt", "default-alt.xml"));
-		a.setSelected("default-alt.xml".equals(luytenPrefs.getThemeXml()));
-		themesGroup.add(a);
-		themesMenu.add(a);
+    private JMenuItem createExitItem() {
+        JMenuItem menuItem = new JMenuItem("Exit");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainWindow.onExitMenu();
+            }
+        });
 
-		a = new JRadioButtonMenuItem(new ThemeAction("Dark", "dark.xml"));
-		a.setSelected("dark.xml".equals(luytenPrefs.getThemeXml()));
-		themesGroup.add(a);
-		themesMenu.add(a);
+        return menuItem;
+    }
 
-		a = new JRadioButtonMenuItem(new ThemeAction("Eclipse", "eclipse.xml"));
-		a.setSelected("eclipse.xml".equals(luytenPrefs.getThemeXml()));
-		themesGroup.add(a);
-		themesMenu.add(a);
+    private JMenuItem createClearRencentItem() {
+        JMenuItem jMenuItem = new JMenuItem("Clear Recent Files");
+        jMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                RecentFiles.paths.clear();
+                RecentFiles.save();
+                updateRecentFiles();
+            }
+        });
 
-		a = new JRadioButtonMenuItem(new ThemeAction("Visual Studio", "vs.xml"));
-		a.setSelected("vs.xml".equals(luytenPrefs.getThemeXml()));
-		themesGroup.add(a);
-		themesMenu.add(a);
+        return jMenuItem;
+    }
 
-		a = new JRadioButtonMenuItem(new ThemeAction("IntelliJ", "idea.xml"));
-		a.setSelected("idea.xml".equals(luytenPrefs.getThemeXml()));
-		themesGroup.add(a);
-		themesMenu.add(a);
-	}
+    private JMenuItem createSaveAllItem() {
+        JMenuItem menuItem;
+        menuItem = new JMenuItem("Save All...");
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainWindow.onSaveAllMenu();
+            }
+        });
+        return menuItem;
+    }
 
-	private void buildOperationMenu(JMenu operationMenu) {
-		operationMenu.removeAll();
-		packageExplorerStyle = new JCheckBox("    Package Explorer Style");
-		packageExplorerStyle.setSelected(luytenPrefs.isPackageExplorerStyle());
-		packageExplorerStyle.setContentAreaFilled(false);
-		packageExplorerStyle.setFocusable(false);
-		packageExplorerStyle.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				luytenPrefs.setPackageExplorerStyle(packageExplorerStyle.isSelected());
-				mainWindow.onTreeSettingsChanged();
-			}
-		});
-		operationMenu.add(packageExplorerStyle);
+    private JMenuItem createSaveAsItem() {
+        JMenuItem menuItem;
+        menuItem = new JMenuItem("Save As...");
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainWindow.onSaveAsMenu();
+            }
+        });
+        return menuItem;
+    }
 
-		filterOutInnerClassEntries = new JCheckBox("    Filter Out Inner Class Entries");
-		filterOutInnerClassEntries.setSelected(luytenPrefs.isFilterOutInnerClassEntries());
-		filterOutInnerClassEntries.setContentAreaFilled(false);
-		filterOutInnerClassEntries.setFocusable(false);
-		filterOutInnerClassEntries.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				luytenPrefs.setFilterOutInnerClassEntries(filterOutInnerClassEntries.isSelected());
-				mainWindow.onTreeSettingsChanged();
-			}
-		});
-		operationMenu.add(filterOutInnerClassEntries);
+    private JMenuItem createCloseFileItem() {
+        JMenuItem menuItem;
+        menuItem = new JMenuItem("Close File");
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JTabbedPane house = mainWindow.getModel().house;
 
-		singleClickOpenEnabled = new JCheckBox("    Single Click Open");
-		singleClickOpenEnabled.setSelected(luytenPrefs.isSingleClickOpenEnabled());
-		singleClickOpenEnabled.setContentAreaFilled(false);
-		singleClickOpenEnabled.setFocusable(false);
-		singleClickOpenEnabled.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				luytenPrefs.setSingleClickOpenEnabled(singleClickOpenEnabled.isSelected());
-			}
-		});
-		operationMenu.add(singleClickOpenEnabled);
+                if (e.getModifiers() != ActionEvent.CTRL_MASK || house.getTabCount() == 0)
+                    mainWindow.onCloseFileMenu();
+                else {
+                    mainWindow.getModel().closeOpenTab(house.getSelectedIndex());
+                }
+            }
+        });
+        return menuItem;
+    }
 
-		exitByEscEnabled = new JCheckBox("    Exit By Esc");
-		exitByEscEnabled.setSelected(luytenPrefs.isExitByEscEnabled());
-		exitByEscEnabled.setContentAreaFilled(false);
-		exitByEscEnabled.setFocusable(false);
-		exitByEscEnabled.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				luytenPrefs.setExitByEscEnabled(exitByEscEnabled.isSelected());
-			}
-		});
-		operationMenu.add(exitByEscEnabled);
-	}
+    private JMenuItem createOpenFileItem(JMenu fileMenu) {
+        JMenuItem menuItem = new JMenuItem("Open File...");
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainWindow.onOpenFileMenu();
+            }
+        });
 
-	private void buildSettingsMenu(JMenu settingsMenu, ConfigSaver configSaver) {
-		settingsMenu.removeAll();
-		ActionListener settingsChanged = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				new Thread() {
-					@Override
-					public void run() {
-						populateSettingsFromSettingsMenu();
-						mainWindow.onSettingsChanged();
-					}
-				}.start();
-			}
-		};
-		flattenSwitchBlocks = new JCheckBox("    Flatten Switch Blocks");
-		flattenSwitchBlocks.setSelected(settings.getFlattenSwitchBlocks());
-		flattenSwitchBlocks.setContentAreaFilled(false);
-		flattenSwitchBlocks.setFocusable(false);
-		flattenSwitchBlocks.addActionListener(settingsChanged);
-		settingsMenu.add(flattenSwitchBlocks);
+        return menuItem;
+    }
 
-		forceExplicitImports = new JCheckBox("    Force Explicit Imports");
-		forceExplicitImports.setSelected(settings.getForceExplicitImports());
-		forceExplicitImports.setContentAreaFilled(false);
-		forceExplicitImports.setFocusable(false);
-		forceExplicitImports.addActionListener(settingsChanged);
-		settingsMenu.add(forceExplicitImports);
+    private void buildEditMenu(JMenu editMenu) {
+        editMenu.removeAll();
+        JMenuItem menuItem = new JMenuItem("Cut");
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        menuItem.setEnabled(false);
+        editMenu.add(menuItem);
 
-		forceExplicitTypes = new JCheckBox("    Force Explicit Types");
-		forceExplicitTypes.setSelected(settings.getForceExplicitTypeArguments());
-		forceExplicitTypes.setContentAreaFilled(false);
-		forceExplicitTypes.setFocusable(false);
-		forceExplicitTypes.addActionListener(settingsChanged);
-		settingsMenu.add(forceExplicitTypes);
+        menuItem = new JMenuItem("Copy");
+        menuItem.addActionListener(new DefaultEditorKit.CopyAction());
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        editMenu.add(menuItem);
 
-		showSyntheticMembers = new JCheckBox("    Show Synthetic Members");
-		showSyntheticMembers.setSelected(settings.getShowSyntheticMembers());
-		showSyntheticMembers.setContentAreaFilled(false);
-		showSyntheticMembers.setFocusable(false);
-		showSyntheticMembers.addActionListener(settingsChanged);
-		settingsMenu.add(showSyntheticMembers);
+        menuItem = new JMenuItem("Paste");
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        menuItem.setEnabled(false);
+        editMenu.add(menuItem);
 
-		excludeNestedTypes = new JCheckBox("    Exclude Nested Types");
-		excludeNestedTypes.setSelected(settings.getExcludeNestedTypes());
-		excludeNestedTypes.setContentAreaFilled(false);
-		excludeNestedTypes.setFocusable(false);
-		excludeNestedTypes.addActionListener(settingsChanged);
-		settingsMenu.add(excludeNestedTypes);
+        editMenu.addSeparator();
 
-		retainRedundantCasts = new JCheckBox("    Retain Redundant Casts");
-		retainRedundantCasts.setSelected(settings.getRetainRedundantCasts());
-		retainRedundantCasts.setContentAreaFilled(false);
-		retainRedundantCasts.setFocusable(false);
-		retainRedundantCasts.addActionListener(settingsChanged);
-		settingsMenu.add(retainRedundantCasts);
+        menuItem = new JMenuItem("Select All");
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainWindow.onSelectAllMenu();
+            }
+        });
+        editMenu.add(menuItem);
+        editMenu.addSeparator();
 
-		unicodeReplacement = new JCheckBox("    Enable Unicode Replacement");
-		unicodeReplacement.setSelected(settings.isUnicodeOutputEnabled());
-		unicodeReplacement.setContentAreaFilled(false);
-		unicodeReplacement.setFocusable(false);
-		unicodeReplacement.addActionListener(settingsChanged);
-		settingsMenu.add(unicodeReplacement);
+        menuItem = new JMenuItem("Find...");
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainWindow.onFindMenu();
+            }
+        });
+        editMenu.add(menuItem);
 
-		debugLineNumbers = new JCheckBox("    Show Debug Line Numbers");
-		debugLineNumbers.setSelected(settings.getShowDebugLineNumbers());
-		debugLineNumbers.setContentAreaFilled(false);
-		debugLineNumbers.setFocusable(false);
-		debugLineNumbers.addActionListener(settingsChanged);
-		settingsMenu.add(debugLineNumbers);
+        menuItem = new JMenuItem("Find Next");
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (mainWindow.findBox != null) mainWindow.findBox.fireExploreAction(true);
+            }
+        });
+        editMenu.add(menuItem);
 
-		JMenu debugSettingsMenu = new JMenu("Debug Settings");
-		showDebugInfo = new JCheckBox("    Include Error Diagnostics");
-		showDebugInfo.setSelected(settings.getIncludeErrorDiagnostics());
-		showDebugInfo.setContentAreaFilled(false);
-		showDebugInfo.setFocusable(false);
-		showDebugInfo.addActionListener(settingsChanged);
+        menuItem = new JMenuItem("Find Previous");
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_F3, InputEvent.SHIFT_DOWN_MASK));
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (mainWindow.findBox != null) mainWindow.findBox.fireExploreAction(false);
+            }
+        });
+        editMenu.add(menuItem);
 
-		debugSettingsMenu.add(showDebugInfo);
-		settingsMenu.add(debugSettingsMenu);
-		settingsMenu.addSeparator();
+        menuItem = new JMenuItem("Find All");
+        menuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_G, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainWindow.onFindAllMenu();
 
-		languageLookup.put(Languages.java().getName(), Languages.java());
-		languageLookup.put(Languages.bytecode().getName(), Languages.bytecode());
-		languageLookup.put(Languages.bytecodeAst().getName(), Languages.bytecodeAst());
+            }
+        });
+        editMenu.add(menuItem);
+    }
 
-		languagesGroup = new ButtonGroup();
-		java = new JRadioButtonMenuItem(Languages.java().getName());
-		java.getModel().setActionCommand(Languages.java().getName());
-		java.setSelected(Languages.java().getName().equals(settings.getLanguage().getName()));
-		languagesGroup.add(java);
-		settingsMenu.add(java);
-		bytecode = new JRadioButtonMenuItem(Languages.bytecode().getName());
-		bytecode.getModel().setActionCommand(Languages.bytecode().getName());
-		bytecode.setSelected(Languages.bytecode().getName().equals(settings.getLanguage().getName()));
-		languagesGroup.add(bytecode);
-		settingsMenu.add(bytecode);
-		bytecodeAST = new JRadioButtonMenuItem(Languages.bytecodeAst().getName());
-		bytecodeAST.getModel().setActionCommand(Languages.bytecodeAst().getName());
-		bytecodeAST.setSelected(Languages.bytecodeAst().getName().equals(settings.getLanguage().getName()));
-		languagesGroup.add(bytecodeAST);
-		settingsMenu.add(bytecodeAST);
+    private void buildThemesMenu(JMenu themesMenu) {
+        themesMenu.removeAll();
+        themesGroup = new ButtonGroup();
+        JRadioButtonMenuItem a = new JRadioButtonMenuItem(new ThemeAction("Default", "default.xml"));
+        a.setSelected("default.xml".equals(luytenPrefs.getThemeXml()));
+        themesGroup.add(a);
+        themesMenu.add(a);
 
-		JMenu debugLanguagesMenu = new JMenu("Debug Languages");
-		for (final Language language : Languages.debug()) {
-			final JRadioButtonMenuItem m = new JRadioButtonMenuItem(language.getName());
-			m.getModel().setActionCommand(language.getName());
-			m.setSelected(language.getName().equals(settings.getLanguage().getName()));
-			languagesGroup.add(m);
-			debugLanguagesMenu.add(m);
-			languageLookup.put(language.getName(), language);
-		}
-		for (AbstractButton button : Collections.list(languagesGroup.getElements())) {
-			button.addActionListener(settingsChanged);
-		}
-		settingsMenu.add(debugLanguagesMenu);
+        a = new JRadioButtonMenuItem(new ThemeAction("Default-Alt", "default-alt.xml"));
+        a.setSelected("default-alt.xml".equals(luytenPrefs.getThemeXml()));
+        themesGroup.add(a);
+        themesMenu.add(a);
 
-		bytecodeLineNumbers = new JCheckBox("    Show Line Numbers In Bytecode");
-		bytecodeLineNumbers.setSelected(settings.getIncludeLineNumbersInBytecode());
-		bytecodeLineNumbers.setContentAreaFilled(false);
-		bytecodeLineNumbers.setFocusable(false);
-		bytecodeLineNumbers.addActionListener(settingsChanged);
-		settingsMenu.add(bytecodeLineNumbers);
-	}
+        a = new JRadioButtonMenuItem(new ThemeAction("Dark", "dark.xml"));
+        a.setSelected("dark.xml".equals(luytenPrefs.getThemeXml()));
+        themesGroup.add(a);
+        themesMenu.add(a);
 
-	private void buildHelpMenu(JMenu helpMenu) {
-		helpMenu.removeAll();
-		JMenuItem menuItem = new JMenuItem("Legal");
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mainWindow.onLegalMenu();
-			}
-		});
-		helpMenu.add(menuItem);
-		JMenu menuDebug = new JMenu("Debug");
-		menuItem = new JMenuItem("List JVM Classes");
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mainWindow.onListLoadedClasses();
-			}
-		});
-		menuDebug.add(menuItem);
-		helpMenu.add(menuDebug);
-		menuItem = new JMenuItem("About");
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent event) {
-				JPanel pane = new JPanel();
-				pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
-				JLabel title = new JLabel("Luyten " + Luyten.getVersion());
-				title.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
-				pane.add(title);
-				pane.add(new JLabel("by Deathmarine"));
-				String project = "https://github.com/deathmarine/Luyten/";
-				JLabel link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + project + "</U></FONT></HTML>");
-				link.setCursor(new Cursor(Cursor.HAND_CURSOR));
-				link.addMouseListener(new LinkListener(project, link));
-				pane.add(link);
-				pane.add(new JLabel("Contributions By:"));
-				pane.add(new JLabel("zerdei, toonetown, dstmath"));
-				pane.add(new JLabel("virustotalop, xtrafrancyz,"));
-				pane.add(new JLabel("mbax, quitten, mstrobel,"));
-				pane.add(new JLabel("FisheyLP, and Syquel"));
-				pane.add(new JLabel(" "));
-				pane.add(new JLabel("Powered By:"));
-				String procyon = "https://bitbucket.org/mstrobel/procyon";
-				link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + procyon + "</U></FONT></HTML>");
-				link.setCursor(new Cursor(Cursor.HAND_CURSOR));
-				link.addMouseListener(new LinkListener(procyon, link));
-				pane.add(link);
-				pane.add(new JLabel("Version: " + Procyon.version()));
-				pane.add(new JLabel("(c) 2016 Mike Strobel"));
-				String rsyntax = "https://github.com/bobbylight/RSyntaxTextArea";
-				link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + rsyntax + "</U></FONT></HTML>");
-				link.setCursor(new Cursor(Cursor.HAND_CURSOR));
-				link.addMouseListener(new LinkListener(rsyntax, link));
-				pane.add(link);
-				pane.add(new JLabel("Version: 2.6.1"));
-				pane.add(new JLabel("(c) 2017 Robert Futrell"));
-				pane.add(new JLabel(" "));
-				JOptionPane.showMessageDialog(null, pane);
-			}
-		});
-		helpMenu.add(menuItem);
-	}
+        a = new JRadioButtonMenuItem(new ThemeAction("Eclipse", "eclipse.xml"));
+        a.setSelected("eclipse.xml".equals(luytenPrefs.getThemeXml()));
+        themesGroup.add(a);
+        themesMenu.add(a);
 
-	private void populateSettingsFromSettingsMenu() {
-		// synchronized: do not disturb decompiler at work (synchronize every
-		// time before run decompiler)
-		synchronized (settings) {
-			settings.setFlattenSwitchBlocks(flattenSwitchBlocks.isSelected());
-			settings.setForceExplicitImports(forceExplicitImports.isSelected());
-			settings.setShowSyntheticMembers(showSyntheticMembers.isSelected());
-			settings.setExcludeNestedTypes(excludeNestedTypes.isSelected());
-			settings.setForceExplicitTypeArguments(forceExplicitTypes.isSelected());
-			settings.setRetainRedundantCasts(retainRedundantCasts.isSelected());
-			settings.setIncludeErrorDiagnostics(showDebugInfo.isSelected());
-			settings.setUnicodeOutputEnabled(unicodeReplacement.isSelected());
-			settings.setShowDebugLineNumbers(debugLineNumbers.isSelected());
-			//
-			// Note: You shouldn't ever need to set this. It's only for
-			// languages that support catch
-			// blocks without an exception variable. Java doesn't allow this. I
-			// think Scala does.
-			//
-			// settings.setAlwaysGenerateExceptionVariableForCatchBlocks(true);
-			//
+        a = new JRadioButtonMenuItem(new ThemeAction("Visual Studio", "vs.xml"));
+        a.setSelected("vs.xml".equals(luytenPrefs.getThemeXml()));
+        themesGroup.add(a);
+        themesMenu.add(a);
 
-			final ButtonModel selectedLanguage = languagesGroup.getSelection();
-			if (selectedLanguage != null) {
-				final Language language = languageLookup.get(selectedLanguage.getActionCommand());
+        a = new JRadioButtonMenuItem(new ThemeAction("IntelliJ", "idea.xml"));
+        a.setSelected("idea.xml".equals(luytenPrefs.getThemeXml()));
+        themesGroup.add(a);
+        themesMenu.add(a);
+    }
 
-				if (language != null)
-					settings.setLanguage(language);
-			}
+    private void buildOperationMenu(JMenu operationMenu) {
+        operationMenu.removeAll();
+        packageExplorerStyle = new JCheckBox("    Package Explorer Style");
+        packageExplorerStyle.setSelected(luytenPrefs.isPackageExplorerStyle());
+        packageExplorerStyle.setContentAreaFilled(false);
+        packageExplorerStyle.setFocusable(false);
+        packageExplorerStyle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                luytenPrefs.setPackageExplorerStyle(packageExplorerStyle.isSelected());
+                mainWindow.onTreeSettingsChanged();
+            }
+        });
+        operationMenu.add(packageExplorerStyle);
 
-			if (java.isSelected()) {
-				settings.setLanguage(Languages.java());
-			} else if (bytecode.isSelected()) {
-				settings.setLanguage(Languages.bytecode());
-			} else if (bytecodeAST.isSelected()) {
-				settings.setLanguage(Languages.bytecodeAst());
-			}
-			settings.setIncludeLineNumbersInBytecode(bytecodeLineNumbers.isSelected());
-		}
-	}
+        filterOutInnerClassEntries = new JCheckBox("    Filter Out Inner Class Entries");
+        filterOutInnerClassEntries.setSelected(luytenPrefs.isFilterOutInnerClassEntries());
+        filterOutInnerClassEntries.setContentAreaFilled(false);
+        filterOutInnerClassEntries.setFocusable(false);
+        filterOutInnerClassEntries.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                luytenPrefs.setFilterOutInnerClassEntries(filterOutInnerClassEntries.isSelected());
+                mainWindow.onTreeSettingsChanged();
+            }
+        });
+        operationMenu.add(filterOutInnerClassEntries);
 
-	private class ThemeAction extends AbstractAction {
-		private static final long serialVersionUID = -6618680171943723199L;
-		private String xml;
+        singleClickOpenEnabled = new JCheckBox("    Single Click Open");
+        singleClickOpenEnabled.setSelected(luytenPrefs.isSingleClickOpenEnabled());
+        singleClickOpenEnabled.setContentAreaFilled(false);
+        singleClickOpenEnabled.setFocusable(false);
+        singleClickOpenEnabled.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                luytenPrefs.setSingleClickOpenEnabled(singleClickOpenEnabled.isSelected());
+            }
+        });
+        operationMenu.add(singleClickOpenEnabled);
 
-		public ThemeAction(String name, String xml) {
-			putValue(NAME, name);
-			this.xml = xml;
-		}
+        exitByEscEnabled = new JCheckBox("    Exit By Esc");
+        exitByEscEnabled.setSelected(luytenPrefs.isExitByEscEnabled());
+        exitByEscEnabled.setContentAreaFilled(false);
+        exitByEscEnabled.setFocusable(false);
+        exitByEscEnabled.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                luytenPrefs.setExitByEscEnabled(exitByEscEnabled.isSelected());
+            }
+        });
+        operationMenu.add(exitByEscEnabled);
+    }
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			luytenPrefs.setThemeXml(xml);
-			mainWindow.onThemesChanged();
-		}
-	}
+    private void buildSettingsMenu(JMenu settingsMenu, ConfigSaver configSaver) {
+        settingsMenu.removeAll();
+        ActionListener settingsChanged = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        populateSettingsFromSettingsMenu();
+                        mainWindow.onSettingsChanged();
+                    }
+                }.start();
+            }
+        };
+        flattenSwitchBlocks = new JCheckBox("    Flatten Switch Blocks");
+        flattenSwitchBlocks.setSelected(settings.getFlattenSwitchBlocks());
+        flattenSwitchBlocks.setContentAreaFilled(false);
+        flattenSwitchBlocks.setFocusable(false);
+        flattenSwitchBlocks.addActionListener(settingsChanged);
+        settingsMenu.add(flattenSwitchBlocks);
 
-	private class LinkListener extends MouseAdapter {
-		String link;
-		JLabel label;
+        forceExplicitImports = new JCheckBox("    Force Explicit Imports");
+        forceExplicitImports.setSelected(settings.getForceExplicitImports());
+        forceExplicitImports.setContentAreaFilled(false);
+        forceExplicitImports.setFocusable(false);
+        forceExplicitImports.addActionListener(settingsChanged);
+        settingsMenu.add(forceExplicitImports);
 
-		public LinkListener(String link, JLabel label) {
-			this.link = link;
-			this.label = label;
-		}
+        forceExplicitTypes = new JCheckBox("    Force Explicit Types");
+        forceExplicitTypes.setSelected(settings.getForceExplicitTypeArguments());
+        forceExplicitTypes.setContentAreaFilled(false);
+        forceExplicitTypes.setFocusable(false);
+        forceExplicitTypes.addActionListener(settingsChanged);
+        settingsMenu.add(forceExplicitTypes);
 
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			try {
-				Desktop.getDesktop().browse(new URI(link));
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-		}
+        showSyntheticMembers = new JCheckBox("    Show Synthetic Members");
+        showSyntheticMembers.setSelected(settings.getShowSyntheticMembers());
+        showSyntheticMembers.setContentAreaFilled(false);
+        showSyntheticMembers.setFocusable(false);
+        showSyntheticMembers.addActionListener(settingsChanged);
+        settingsMenu.add(showSyntheticMembers);
 
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			label.setText("<HTML><FONT color=\"#00aa99\"><U>" + link + "</U></FONT></HTML>");
-		}
+        excludeNestedTypes = new JCheckBox("    Exclude Nested Types");
+        excludeNestedTypes.setSelected(settings.getExcludeNestedTypes());
+        excludeNestedTypes.setContentAreaFilled(false);
+        excludeNestedTypes.setFocusable(false);
+        excludeNestedTypes.addActionListener(settingsChanged);
+        settingsMenu.add(excludeNestedTypes);
 
-		@Override
-		public void mouseExited(MouseEvent e) {
-			label.setText("<HTML><FONT color=\"#000099\"><U>" + link + "</U></FONT></HTML>");
-		}
+        retainRedundantCasts = new JCheckBox("    Retain Redundant Casts");
+        retainRedundantCasts.setSelected(settings.getRetainRedundantCasts());
+        retainRedundantCasts.setContentAreaFilled(false);
+        retainRedundantCasts.setFocusable(false);
+        retainRedundantCasts.addActionListener(settingsChanged);
+        settingsMenu.add(retainRedundantCasts);
 
-	}
+        unicodeReplacement = new JCheckBox("    Enable Unicode Replacement");
+        unicodeReplacement.setSelected(settings.isUnicodeOutputEnabled());
+        unicodeReplacement.setContentAreaFilled(false);
+        unicodeReplacement.setFocusable(false);
+        unicodeReplacement.addActionListener(settingsChanged);
+        settingsMenu.add(unicodeReplacement);
+
+        debugLineNumbers = new JCheckBox("    Show Debug Line Numbers");
+        debugLineNumbers.setSelected(settings.getShowDebugLineNumbers());
+        debugLineNumbers.setContentAreaFilled(false);
+        debugLineNumbers.setFocusable(false);
+        debugLineNumbers.addActionListener(settingsChanged);
+        settingsMenu.add(debugLineNumbers);
+
+        JMenu debugSettingsMenu = new JMenu("Debug Settings");
+        showDebugInfo = new JCheckBox("    Include Error Diagnostics");
+        showDebugInfo.setSelected(settings.getIncludeErrorDiagnostics());
+        showDebugInfo.setContentAreaFilled(false);
+        showDebugInfo.setFocusable(false);
+        showDebugInfo.addActionListener(settingsChanged);
+
+        debugSettingsMenu.add(showDebugInfo);
+        settingsMenu.add(debugSettingsMenu);
+        settingsMenu.addSeparator();
+
+        languageLookup.put(Languages.java().getName(), Languages.java());
+        languageLookup.put(Languages.bytecode().getName(), Languages.bytecode());
+        languageLookup.put(Languages.bytecodeAst().getName(), Languages.bytecodeAst());
+
+        languagesGroup = new ButtonGroup();
+        java = new JRadioButtonMenuItem(Languages.java().getName());
+        java.getModel().setActionCommand(Languages.java().getName());
+        java.setSelected(Languages.java().getName().equals(settings.getLanguage().getName()));
+        languagesGroup.add(java);
+        settingsMenu.add(java);
+        bytecode = new JRadioButtonMenuItem(Languages.bytecode().getName());
+        bytecode.getModel().setActionCommand(Languages.bytecode().getName());
+        bytecode.setSelected(Languages.bytecode().getName().equals(settings.getLanguage().getName()));
+        languagesGroup.add(bytecode);
+        settingsMenu.add(bytecode);
+        bytecodeAST = new JRadioButtonMenuItem(Languages.bytecodeAst().getName());
+        bytecodeAST.getModel().setActionCommand(Languages.bytecodeAst().getName());
+        bytecodeAST.setSelected(Languages.bytecodeAst().getName().equals(settings.getLanguage().getName()));
+        languagesGroup.add(bytecodeAST);
+        settingsMenu.add(bytecodeAST);
+
+        JMenu debugLanguagesMenu = new JMenu("Debug Languages");
+        for (final Language language : Languages.debug()) {
+            final JRadioButtonMenuItem m = new JRadioButtonMenuItem(language.getName());
+            m.getModel().setActionCommand(language.getName());
+            m.setSelected(language.getName().equals(settings.getLanguage().getName()));
+            languagesGroup.add(m);
+            debugLanguagesMenu.add(m);
+            languageLookup.put(language.getName(), language);
+        }
+        for (AbstractButton button : Collections.list(languagesGroup.getElements())) {
+            button.addActionListener(settingsChanged);
+        }
+        settingsMenu.add(debugLanguagesMenu);
+
+        bytecodeLineNumbers = new JCheckBox("    Show Line Numbers In Bytecode");
+        bytecodeLineNumbers.setSelected(settings.getIncludeLineNumbersInBytecode());
+        bytecodeLineNumbers.setContentAreaFilled(false);
+        bytecodeLineNumbers.setFocusable(false);
+        bytecodeLineNumbers.addActionListener(settingsChanged);
+        settingsMenu.add(bytecodeLineNumbers);
+    }
+
+    private void buildHelpMenu(JMenu helpMenu) {
+        helpMenu.removeAll();
+        JMenuItem menuItem = new JMenuItem("Legal");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainWindow.onLegalMenu();
+            }
+        });
+        helpMenu.add(menuItem);
+        JMenu menuDebug = new JMenu("Debug");
+        menuItem = new JMenuItem("List JVM Classes");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainWindow.onListLoadedClasses();
+            }
+        });
+        menuDebug.add(menuItem);
+        helpMenu.add(menuDebug);
+        menuItem = new JMenuItem("About");
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                JPanel pane = new JPanel();
+                pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
+                JLabel title = new JLabel("Luyten " + Luyten.getVersion());
+                title.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
+                pane.add(title);
+                pane.add(new JLabel("by Deathmarine"));
+                String project = "https://github.com/deathmarine/Luyten/";
+                JLabel link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + project + "</U></FONT></HTML>");
+                link.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                link.addMouseListener(new LinkListener(project, link));
+                pane.add(link);
+                pane.add(new JLabel("Contributions By:"));
+                pane.add(new JLabel("zerdei, toonetown, dstmath"));
+                pane.add(new JLabel("virustotalop, xtrafrancyz,"));
+                pane.add(new JLabel("mbax, quitten, mstrobel,"));
+                pane.add(new JLabel("FisheyLP, and Syquel"));
+                pane.add(new JLabel(" "));
+                pane.add(new JLabel("Powered By:"));
+                String procyon = "https://bitbucket.org/mstrobel/procyon";
+                link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + procyon + "</U></FONT></HTML>");
+                link.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                link.addMouseListener(new LinkListener(procyon, link));
+                pane.add(link);
+                pane.add(new JLabel("Version: " + Procyon.version()));
+                pane.add(new JLabel("(c) 2016 Mike Strobel"));
+                String rsyntax = "https://github.com/bobbylight/RSyntaxTextArea";
+                link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + rsyntax + "</U></FONT></HTML>");
+                link.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                link.addMouseListener(new LinkListener(rsyntax, link));
+                pane.add(link);
+                pane.add(new JLabel("Version: 2.6.1"));
+                pane.add(new JLabel("(c) 2017 Robert Futrell"));
+                pane.add(new JLabel(" "));
+                JOptionPane.showMessageDialog(null, pane);
+            }
+        });
+        helpMenu.add(menuItem);
+    }
+
+    private void populateSettingsFromSettingsMenu() {
+        // synchronized: do not disturb decompiler at work (synchronize every
+        // time before run decompiler)
+        synchronized (settings) {
+            settings.setFlattenSwitchBlocks(flattenSwitchBlocks.isSelected());
+            settings.setForceExplicitImports(forceExplicitImports.isSelected());
+            settings.setShowSyntheticMembers(showSyntheticMembers.isSelected());
+            settings.setExcludeNestedTypes(excludeNestedTypes.isSelected());
+            settings.setForceExplicitTypeArguments(forceExplicitTypes.isSelected());
+            settings.setRetainRedundantCasts(retainRedundantCasts.isSelected());
+            settings.setIncludeErrorDiagnostics(showDebugInfo.isSelected());
+            settings.setUnicodeOutputEnabled(unicodeReplacement.isSelected());
+            settings.setShowDebugLineNumbers(debugLineNumbers.isSelected());
+            //
+            // Note: You shouldn't ever need to set this. It's only for
+            // languages that support catch
+            // blocks without an exception variable. Java doesn't allow this. I
+            // think Scala does.
+            //
+            // settings.setAlwaysGenerateExceptionVariableForCatchBlocks(true);
+            //
+
+            final ButtonModel selectedLanguage = languagesGroup.getSelection();
+            if (selectedLanguage != null) {
+                final Language language = languageLookup.get(selectedLanguage.getActionCommand());
+
+                if (language != null)
+                    settings.setLanguage(language);
+            }
+
+            if (java.isSelected()) {
+                settings.setLanguage(Languages.java());
+            } else if (bytecode.isSelected()) {
+                settings.setLanguage(Languages.bytecode());
+            } else if (bytecodeAST.isSelected()) {
+                settings.setLanguage(Languages.bytecodeAst());
+            }
+            settings.setIncludeLineNumbersInBytecode(bytecodeLineNumbers.isSelected());
+        }
+    }
+
+    private class ThemeAction extends AbstractAction {
+        private static final long serialVersionUID = -6618680171943723199L;
+        private String xml;
+
+        public ThemeAction(String name, String xml) {
+            putValue(NAME, name);
+            this.xml = xml;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            luytenPrefs.setThemeXml(xml);
+            mainWindow.onThemesChanged();
+        }
+    }
+
+    private class LinkListener extends MouseAdapter {
+        String link;
+        JLabel label;
+
+        public LinkListener(String link, JLabel label) {
+            this.link = link;
+            this.label = label;
+        }
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            try {
+                Desktop.getDesktop().browse(new URI(link));
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            label.setText("<HTML><FONT color=\"#00aa99\"><U>" + link + "</U></FONT></HTML>");
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+            label.setText("<HTML><FONT color=\"#000099\"><U>" + link + "</U></FONT></HTML>");
+        }
+
+    }
 }
+
