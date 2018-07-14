@@ -1,14 +1,22 @@
 package us.deathmarine.luyten;
 
+import idevcod.CodeTabbedPane;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JSplitPane;
+import javax.swing.border.BevelBorder;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.dnd.DropTarget;
-import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -18,20 +26,6 @@ import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Vector;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JSplitPane;
-import javax.swing.KeyStroke;
-import javax.swing.border.BevelBorder;
-
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-
 /**
  * Dispatcher
  */
@@ -40,7 +34,6 @@ public class MainWindow extends JFrame {
 
     private static final String TITLE = "Luyten";
 
-    public static Model model;
     private JProgressBar progressBar;
     private JLabel statusLabel;
     FindBox findBox;
@@ -50,6 +43,7 @@ public class MainWindow extends JFrame {
     private LuytenPreferences luytenPrefs;
     private FileDialog fileDialog;
     private FileSaver fileSaver;
+    private CodeTabbedPane contentTabbedPane;
     public MainMenuBar mainMenuBar;
 
     public MainWindow() {
@@ -71,9 +65,6 @@ public class MainWindow extends JFrame {
         JSplitPane statusSplitPane = createStatusSplitPane();
         this.add(statusSplitPane, BorderLayout.SOUTH);
 
-        model = new Model(this);
-        this.getContentPane().add(model);
-
         try {
             DropTarget dt = new DropTarget();
             dt.addDropTargetListener(new DropListener(this));
@@ -85,9 +76,8 @@ public class MainWindow extends JFrame {
         fileDialog = new FileDialog(this);
         fileSaver = new FileSaver(progressBar, statusLabel);
 
-        this.setExitOnEscWhenEnabled(model);
-
-        model.startWarmUpThread();
+        contentTabbedPane = new CodeTabbedPane(this);
+        this.getContentPane().add(contentTabbedPane);
 
         if (RecentFiles.load() > 0) mainMenuBar.updateRecentFiles();
     }
@@ -310,19 +300,28 @@ public class MainWindow extends JFrame {
 
     public void onFileDropped(File file) {
         if (file != null) {
-            this.getModel().loadFile(file);
+            contentTabbedPane.loadFile(file);
         }
     }
 
-    public void onFileLoadEnded(File file, boolean isSuccess) {
+    public void onFileLoadEnded(String fullName, boolean isSuccess) {
         try {
-            if (file != null && isSuccess) {
-                this.setTitle(TITLE + " - " + file.getName());
+            if (fullName != null && isSuccess) {
+                this.setWindowTitle(fullName);
             } else {
-                this.setTitle(TITLE);
+                this.setWindowTitle(null);
             }
         } catch (Exception e) {
             Luyten.showExceptionDialog("Exception!", e);
+        }
+    }
+
+    public void setWindowTitle(String title) {
+        if (title == null) {
+            this.setTitle(TITLE);
+        }
+        else {
+            this.setTitle(TITLE + " - " + title);
         }
     }
 
@@ -396,7 +395,7 @@ public class MainWindow extends JFrame {
         });
     }
 
-    private void quit() {
+    public void quit() {
         try {
             windowPosition.readPositionFromWindow(this);
             configSaver.saveConfig();
@@ -411,24 +410,12 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private void setExitOnEscWhenEnabled(JComponent mainComponent) {
-        Action escapeAction = new AbstractAction() {
-            private static final long serialVersionUID = -3460391555954575248L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (luytenPrefs.isExitByEscEnabled()) {
-                    quit();
-                }
-            }
-        };
-        KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
-        mainComponent.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(escapeKeyStroke, "ESCAPE");
-        mainComponent.getActionMap().put("ESCAPE", escapeAction);
+    public Model getModel() {
+        return contentTabbedPane.getCodeModel();
     }
 
-    public Model getModel() {
-        return model;
+    public void loadFile(File file) {
+        contentTabbedPane.loadFile(file);
     }
 
     public JProgressBar getProgressBar() {
@@ -437,5 +424,9 @@ public class MainWindow extends JFrame {
 
     public JLabel getStatusLabel() {
         return statusLabel;
+    }
+
+    public LuytenPreferences getLuytenPrefs() {
+        return luytenPrefs;
     }
 }

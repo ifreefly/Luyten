@@ -67,7 +67,7 @@ public class Luyten {
         if (fileFromCommandLine != null) {
             final MainWindow mainWindow = mainWindowRef.get();
             if (mainWindow != null) {
-                mainWindow.getModel().loadFile(fileFromCommandLine);
+                mainWindow.loadFile(fileFromCommandLine);
             }
         }
     }

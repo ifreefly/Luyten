@@ -7,6 +7,7 @@ import com.strobel.decompiler.DecompilationOptions;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.PlainTextOutput;
 
+import sun.applet.Main;
 import us.deathmarine.luyten.ConfigSaver;
 import us.deathmarine.luyten.MainWindow;
 import us.deathmarine.luyten.Model;
@@ -49,6 +50,8 @@ public class FindAllBox extends JDialog {
 	private static final int MIN_WIDTH = 640;
 	private boolean searching;
 
+	private MainWindow mainWindow;
+
 	private JButton findButton;
 	private JTextField textField;
 	private JCheckBox mcase;
@@ -66,6 +69,8 @@ public class FindAllBox extends JDialog {
 	private Thread tmp_thread;
 
 	public FindAllBox(final MainWindow mainWindow) {
+		this.mainWindow = mainWindow;
+
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 		this.setHideOnEscapeButton();
 
@@ -107,7 +112,7 @@ public class FindAllBox extends JDialog {
 
 					} else {
 						try {
-							JarFile jfile = new JarFile(MainWindow.model.getOpenedFile());
+							JarFile jfile = new JarFile(mainWindow.getModel().getOpenedFile());
 							mainWindow.getModel().extractSimpleFileEntryToTextPane(
 									jfile.getInputStream(jfile.getEntry(entryName)), array[array.length - 1],
 									entryName);
@@ -196,7 +201,7 @@ public class FindAllBox extends JDialog {
 						classesList.clear();
 						ConfigSaver configSaver = ConfigSaver.getLoadedInstance();
 						DecompilerSettings settings = configSaver.getDecompilerSettings();
-						File inFile = MainWindow.model.getOpenedFile();
+						File inFile = mainWindow.getModel().getOpenedFile();
 						boolean filter = ConfigSaver.getLoadedInstance().getLuytenPreferences()
 								.isFilterOutInnerClassEntries();
 						try {

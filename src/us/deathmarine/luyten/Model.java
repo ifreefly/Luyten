@@ -1,9 +1,43 @@
 package us.deathmarine.luyten;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Toolkit;
+import com.strobel.assembler.InputTypeLoader;
+import com.strobel.assembler.metadata.ITypeLoader;
+import com.strobel.assembler.metadata.JarTypeLoader;
+import com.strobel.assembler.metadata.MetadataSystem;
+import com.strobel.assembler.metadata.TypeDefinition;
+import com.strobel.assembler.metadata.TypeReference;
+import com.strobel.core.StringUtilities;
+import com.strobel.core.VerifyArgument;
+import com.strobel.decompiler.DecompilationOptions;
+import com.strobel.decompiler.DecompilerSettings;
+import com.strobel.decompiler.PlainTextOutput;
+import idevcod.Tab;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.Theme;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTree;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
@@ -24,49 +58,12 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTree;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.Theme;
-import org.fife.ui.rtextarea.RTextScrollPane;
-import com.strobel.assembler.InputTypeLoader;
-import com.strobel.assembler.metadata.ITypeLoader;
-import com.strobel.assembler.metadata.JarTypeLoader;
-import com.strobel.assembler.metadata.MetadataSystem;
-import com.strobel.assembler.metadata.TypeDefinition;
-import com.strobel.assembler.metadata.TypeReference;
-import com.strobel.core.StringUtilities;
-import com.strobel.core.VerifyArgument;
-import com.strobel.decompiler.DecompilationOptions;
-import com.strobel.decompiler.DecompilerSettings;
-import com.strobel.decompiler.PlainTextOutput;
 
 /**
  * Jar-level model
@@ -79,6 +76,8 @@ public class Model extends JSplitPane {
 
 	private static LuytenTypeLoader typeLoader = new LuytenTypeLoader();
 	public static MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
+
+	private String fullName;
 
 	private JTree tree;
 	public JTabbedPane house;
@@ -96,7 +95,9 @@ public class Model extends JSplitPane {
 	private ConfigSaver configSaver;
 	private LuytenPreferences luytenPrefs;
 
-	public Model(MainWindow mainWindow) {
+	public Model(String fullName, MainWindow mainWindow) {
+	    this.fullName = fullName;
+
 		this.mainWindow = mainWindow;
 		this.bar = mainWindow.getProgressBar();
 		this.setLabel(mainWindow.getStatusLabel());
@@ -241,7 +242,11 @@ public class Model extends JSplitPane {
 		return path;
 	}
 
-	private class TreeListener extends MouseAdapter {
+    public String getFullName() {
+	    return fullName;
+    }
+
+    private class TreeListener extends MouseAdapter {
 		@Override
 		public void mousePressed(MouseEvent event) {
 			boolean isClickCountMatches = (event.getClickCount() == 1 && luytenPrefs.isSingleClickOpenEnabled())
@@ -576,40 +581,6 @@ public class Model extends JSplitPane {
 		}
 	}
 
-	private class Tab extends JPanel {
-		private static final long serialVersionUID = -514663009333644974L;
-		private JLabel closeButton = new JLabel(new ImageIcon(
-				Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/resources/icon_close.png"))));
-		private JLabel tabTitle;
-		private String title;
-
-		public Tab(String t) {
-			super(new GridBagLayout());
-			this.setOpaque(false);
-
-			this.title = t;
-			this.tabTitle = new JLabel(title);
-
-			this.createTab();
-		}
-
-		public JLabel getButton() {
-			return this.closeButton;
-		}
-
-		public void createTab() {
-			GridBagConstraints gbc = new GridBagConstraints();
-			gbc.gridx = 0;
-			gbc.gridy = 0;
-			gbc.weightx = 1;
-			this.add(tabTitle, gbc);
-			gbc.gridx++;
-			gbc.insets = new Insets(0, 5, 0, 0);
-			gbc.anchor = GridBagConstraints.EAST;
-			this.add(closeButton, gbc);
-		}
-	}
-
 	private class CloseTab extends MouseAdapter {
 		String title;
 
@@ -739,7 +710,7 @@ public class Model extends JSplitPane {
 					getLabel().setText("Cannot open: " + file.getName());
 					closeFile();
 				} finally {
-					mainWindow.onFileLoadEnded(file, open);
+					mainWindow.onFileLoadEnded(fullName, open);
 					bar.setVisible(false);
 				}
 			}
@@ -897,7 +868,7 @@ public class Model extends JSplitPane {
 		file = null;
 		treeExpansionState = null;
 		open = false;
-		mainWindow.onFileLoadEnded(file, open);
+		mainWindow.onFileLoadEnded(fullName, open);
 	}
 
 	public void changeTheme(String xml) {
@@ -1044,4 +1015,17 @@ public class Model extends JSplitPane {
 		this.theme = theme;
 	}
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Model model = (Model) o;
+        return Objects.equals(fullName, model.fullName);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(fullName);
+    }
 }
