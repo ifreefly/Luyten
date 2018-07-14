@@ -1,38 +1,29 @@
 package us.deathmarine.luyten;
 
-import com.strobel.Procyon;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.languages.Language;
 import com.strobel.decompiler.languages.Languages;
+import idevcod.AboutPanel;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
-import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.ListIterator;
@@ -191,7 +182,7 @@ public class MainMenuBar extends JMenuBar {
         recentFiles = new JMenu("Recent Files");
         fileMenu.add(recentFiles);
 
-        clearRecentFiles = createClearRencentItem();
+        clearRecentFiles = createClearRecentItem();
         fileMenu.add(clearRecentFiles);
 
         fileMenu.addSeparator();
@@ -216,7 +207,7 @@ public class MainMenuBar extends JMenuBar {
         return menuItem;
     }
 
-    private JMenuItem createClearRencentItem() {
+    private JMenuItem createClearRecentItem() {
         JMenuItem jMenuItem = new JMenuItem("Clear Recent Files");
         jMenuItem.addActionListener(new ActionListener() {
             @Override
@@ -607,40 +598,7 @@ public class MainMenuBar extends JMenuBar {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                JPanel pane = new JPanel();
-                pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
-                JLabel title = new JLabel("Luyten " + Luyten.getVersion());
-                title.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
-                pane.add(title);
-                pane.add(new JLabel("by Deathmarine"));
-                String project = "https://github.com/deathmarine/Luyten/";
-                JLabel link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + project + "</U></FONT></HTML>");
-                link.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                link.addMouseListener(new LinkListener(project, link));
-                pane.add(link);
-                pane.add(new JLabel("Contributions By:"));
-                pane.add(new JLabel("zerdei, toonetown, dstmath"));
-                pane.add(new JLabel("virustotalop, xtrafrancyz,"));
-                pane.add(new JLabel("mbax, quitten, mstrobel,"));
-                pane.add(new JLabel("FisheyLP, and Syquel"));
-                pane.add(new JLabel(" "));
-                pane.add(new JLabel("Powered By:"));
-                String procyon = "https://bitbucket.org/mstrobel/procyon";
-                link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + procyon + "</U></FONT></HTML>");
-                link.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                link.addMouseListener(new LinkListener(procyon, link));
-                pane.add(link);
-                pane.add(new JLabel("Version: " + Procyon.version()));
-                pane.add(new JLabel("(c) 2016 Mike Strobel"));
-                String rsyntax = "https://github.com/bobbylight/RSyntaxTextArea";
-                link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + rsyntax + "</U></FONT></HTML>");
-                link.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                link.addMouseListener(new LinkListener(rsyntax, link));
-                pane.add(link);
-                pane.add(new JLabel("Version: 2.6.1"));
-                pane.add(new JLabel("(c) 2017 Robert Futrell"));
-                pane.add(new JLabel(" "));
-                JOptionPane.showMessageDialog(null, pane);
+                JOptionPane.showMessageDialog(null, new AboutPanel());
             }
         });
         helpMenu.add(menuItem);
@@ -701,36 +659,6 @@ public class MainMenuBar extends JMenuBar {
             luytenPrefs.setThemeXml(xml);
             mainWindow.onThemesChanged();
         }
-    }
-
-    private class LinkListener extends MouseAdapter {
-        String link;
-        JLabel label;
-
-        public LinkListener(String link, JLabel label) {
-            this.link = link;
-            this.label = label;
-        }
-
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            try {
-                Desktop.getDesktop().browse(new URI(link));
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-            label.setText("<HTML><FONT color=\"#00aa99\"><U>" + link + "</U></FONT></HTML>");
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-            label.setText("<HTML><FONT color=\"#000099\"><U>" + link + "</U></FONT></HTML>");
-        }
-
     }
 }
 
