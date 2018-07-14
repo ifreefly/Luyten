@@ -68,22 +68,21 @@ public class MainMenuBar extends JMenuBar {
         luytenPrefs = configSaver.getLuytenPreferences();
 
         final JMenu fileMenu = new JMenu("File");
-        fileMenu.add(new JMenuItem("..."));
         this.add(fileMenu);
+
         final JMenu editMenu = new JMenu("Edit");
-        editMenu.add(new JMenuItem("..."));
         this.add(editMenu);
+
         final JMenu themesMenu = new JMenu("Themes");
-        themesMenu.add(new JMenuItem("..."));
         this.add(themesMenu);
+
         final JMenu operationMenu = new JMenu("Operation");
-        operationMenu.add(new JMenuItem("..."));
         this.add(operationMenu);
+
         final JMenu settingsMenu = new JMenu("Settings");
-        settingsMenu.add(new JMenuItem("..."));
         this.add(settingsMenu);
+
         final JMenu helpMenu = new JMenu("Help");
-        helpMenu.add(new JMenuItem("..."));
         this.add(helpMenu);
 
         // start quicker
