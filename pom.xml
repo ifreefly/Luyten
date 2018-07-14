@@ -4,6 +4,11 @@
 	<groupId>idevcod</groupId>
 	<artifactId>ng-jd-gui</artifactId>
 	<version>0.5.4</version>
+
+    <properties>
+        <mainClassPackage>us.deathmarine.luyten</mainClassPackage>
+    </properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.fifesoft</groupId>
@@ -63,27 +68,7 @@
 				</excludes>
 			</resource>
 		</resources>
-		<plugins><!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<version>2.4</version>
-				<executions>
-					<execution>
-						<phase>initialize</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<groupId>org.bitbucket.mstrobel</groupId>
-							<artifactId>procyon</artifactId>
-							<version>0.5.27</version>
-							<packaging>jar</packaging>
-							<file>${basedir}/lib/procyon-decompiler-0.5.27.jar</file>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>-->
+		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
@@ -106,38 +91,13 @@
 		           <finalName>${project.artifactId}-${project.version}</finalName>
 		             <transformers>
 		               <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-		                 <mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
+		                 <mainClass>${mainClassPackage}.Luyten</mainClass>
 		               </transformer>
 		             </transformers>
 		           </configuration>
 		        </execution>
 		      </executions>
 		    </plugin>
-		    <!-- Replaced by maven-shade for Uber-jar
-		    <plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<descriptors>
-						<descriptor>assembly.xml</descriptor>
-					</descriptors>
-					<finalName>${project.artifactId}</finalName>
-					<archive>
-						<manifest>
-							<mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin> 
-			-->
 			<plugin>
          		<groupId>com.akathist.maven.plugins.launch4j</groupId>
         	    <artifactId>launch4j-maven-plugin</artifactId>
@@ -155,12 +115,11 @@
 							<jar>target/${project.artifactId}-${project.version}.jar</jar>
 							<errTitle>App Err</errTitle>
 							<classPath>
-								<mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
+								<mainClass>${mainClassPackage}.Luyten</mainClass>
 							</classPath>
 							<icon>luyten.ico</icon>
 							<jre>
-								<minVersion>1.7.0</minVersion>
-								<maxVersion>1.8.0</maxVersion>
+								<minVersion>1.8.0</minVersion>
 								<initialHeapSize>128</initialHeapSize>
 								<maxHeapSize>1024</maxHeapSize>
 							</jre>
@@ -219,10 +178,10 @@
 											stubfile="${project.build.directory}/resources/universalJavaApplicationStub.sh"
 											useJavaXKey="true" workingdirectory="$JAVAROOT"
 											bundleid="${project.groupId}.${project.artifactId}"
-											mainclass="${project.groupId}.${project.artifactId}.LuytenOsx"
+											mainclass="${mainClassPackage}.LuytenOsx"
 											version="${project.version}" copyright="2015"
 											icon="${project.build.sourceDirectory}/resources/luyten.icns"
-											jvmversion="1.7+" screenmenu="true" 
+											jvmversion="1.8+" screenmenu="true"
 											antialiasedgraphics="true" highresolutioncapable="true" >
 									<documenttype name="Class File" extensions="class" role="Viewer" />
 									<documenttype name="Java File" extensions="java" role="Viewer" />

@@ -37,7 +37,7 @@ We use maven to handle our dependencies.
 ## Powered by 
 *****
 ### Luyten
-&copy; 2018 deathmarine 
+&copy; 2015 deathmarine 
 [https://github.com/deathmarine/Luyten](https://github.com/deathmarine/Luyten)
 
 ### Procyon
