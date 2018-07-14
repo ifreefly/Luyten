@@ -1,7 +1,7 @@
 ng-jd-gui
 ======
 **Another Java Decompiler**  
-Java Decompiler Gui for Procyon   
+Another Java Decompiler Gui for Procyon   
 The project forks from [Luyten](https://github.com/deathmarine/Luyten), and now it support decompile mutli file
  in one program.  
 Some osx features works well in Luyten, it may not works in this project. If everything works 
