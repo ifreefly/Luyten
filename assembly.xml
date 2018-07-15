@@ -1,0 +1,18 @@
+<assembly>
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <fileSets>
+
+        <fileSet>
+            <directory>target</directory>
+            <outputDirectory/>
+            <includes>
+                <include>**/*.jar</include>
+                <include>**/*.exe</include>
+            </includes>
+        </fileSet>
+
+    </fileSets>
+</assembly>
