@@ -46,36 +46,36 @@ public class AboutPanel extends JPanel {
 
     public AboutPanel() {
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
-        JLabel title = new JLabel("Luyten " + Luyten.getVersion());
+
+        JLabel title = new JLabel("ng-jd-gui " + Luyten.getVersion());
         title.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
         this.add(title);
-        this.add(new JLabel("by Deathmarine"));
-        String project = "https://github.com/deathmarine/Luyten/";
-        JLabel link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + project + "</U></FONT></HTML>");
-        link.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        link.addMouseListener(new LinkListener(project, link));
-        this.add(link);
-        this.add(new JLabel("Contributions By:"));
-        this.add(new JLabel("zerdei, toonetown, dstmath"));
-        this.add(new JLabel("virustotalop, xtrafrancyz,"));
-        this.add(new JLabel("mbax, quitten, mstrobel,"));
-        this.add(new JLabel("FisheyLP, and Syquel"));
+        this.add(new JLabel("by ifreefly"));
+        this.add(createLinkLabel("https://github.com/ifreefly/ng-jd-gui"));
+
+        this.add(new JLabel(" "));
+        this.add(new JLabel("Forked from:"));
+        this.add(createLinkLabel("https://github.com/deathmarine/Luyten"));
+
         this.add(new JLabel(" "));
         this.add(new JLabel("Powered By:"));
-        String procyon = "https://bitbucket.org/mstrobel/procyon";
-        link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + procyon + "</U></FONT></HTML>");
-        link.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        link.addMouseListener(new LinkListener(procyon, link));
-        this.add(link);
+        this.add(createLinkLabel("https://bitbucket.org/mstrobel/procyon"));
         this.add(new JLabel("Version: " + Procyon.version()));
-        this.add(new JLabel("(c) 2016 Mike Strobel"));
-        String rsyntax = "https://github.com/bobbylight/RSyntaxTextArea";
-        link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + rsyntax + "</U></FONT></HTML>");
-        link.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        link.addMouseListener(new LinkListener(rsyntax, link));
-        this.add(link);
+        this.add(new JLabel("(c) 2018 Mike Strobel"));
+
+        this.add(new JLabel(" "));
+        this.add(createLinkLabel("https://github.com/bobbylight/RSyntaxTextArea"));
         this.add(new JLabel("Version: 2.6.1"));
         this.add(new JLabel("(c) 2017 Robert Futrell"));
         this.add(new JLabel(" "));
+    }
+
+    private JLabel createLinkLabel(String link) {
+        String linkPattern = "<HTML><FONT color=\"#000099\"><U> %s </U></FONT></HTML>";
+
+        JLabel label = new JLabel(String.format(linkPattern, link));
+        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        label.addMouseListener(new LinkListener(link, label));
+        return label;
     }
 }
