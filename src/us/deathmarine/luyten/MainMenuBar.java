@@ -25,6 +25,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
@@ -34,9 +35,11 @@ import java.util.Map;
 public class MainMenuBar extends JMenuBar {
     private static final long serialVersionUID = -7949855817172562075L;
     private final MainWindow mainWindow;
-    private final Map<String, Language> languageLookup = new HashMap<String, Language>();
+    private final Map<String, Language> languageLookup = new HashMap<>();
 
-    private JMenu recentFiles;
+    private RecentFiles recentFiles;
+
+    private JMenu recentFilesMenu;
     private JMenuItem clearRecentFiles;
     private JCheckBox flattenSwitchBlocks;
     private JCheckBox forceExplicitImports;
@@ -65,6 +68,8 @@ public class MainMenuBar extends JMenuBar {
         final ConfigSaver configSaver = ConfigSaver.getLoadedInstance();
         settings = configSaver.getDecompilerSettings();
         luytenPrefs = configSaver.getLuytenPreferences();
+
+        recentFiles = new RecentFiles();
 
         final JMenu fileMenu = new JMenu("File");
         this.add(fileMenu);
@@ -107,7 +112,9 @@ public class MainMenuBar extends JMenuBar {
                     buildHelpMenu(helpMenu);
                     refreshMenuPopup(helpMenu);
 
-                    updateRecentFiles();
+                    if (recentFiles.load() > 0) {
+                        updateRecentFiles();
+                    }
                 } catch (Exception e) {
                     Luyten.showExceptionDialog("Exception!", e);
                 }
@@ -129,17 +136,18 @@ public class MainMenuBar extends JMenuBar {
     }
 
     public void updateRecentFiles() {
-        if (RecentFiles.paths.isEmpty()) {
-            recentFiles.setEnabled(false);
+        if (recentFiles.isEmpty()) {
+            recentFilesMenu.setEnabled(false);
             clearRecentFiles.setEnabled(false);
             return;
         } else {
-            recentFiles.setEnabled(true);
+            recentFilesMenu.setEnabled(true);
             clearRecentFiles.setEnabled(true);
         }
 
-        recentFiles.removeAll();
-        ListIterator<String> li = RecentFiles.paths.listIterator(RecentFiles.paths.size());
+        recentFilesMenu.removeAll();
+        List<String> recentFilesList = recentFiles.getRecentFiles();
+        ListIterator<String> li = recentFilesList.listIterator(recentFilesList.size());
         boolean rfSaveNeeded = false;
 
         while (li.hasPrevious()) {
@@ -153,10 +161,15 @@ public class MainMenuBar extends JMenuBar {
 
             JMenuItem menuItem = new JMenuItem(path);
             menuItem.addActionListener(e -> mainWindow.getModel().loadFile(file));
-            recentFiles.add(menuItem);
+            recentFilesMenu.add(menuItem);
         }
 
-        if (rfSaveNeeded) RecentFiles.save();
+        if (rfSaveNeeded) recentFiles.save();
+    }
+
+    public void addRecentFile(File file) {
+        recentFiles.add(file.getAbsolutePath());
+        updateRecentFiles();
     }
 
     private void buildFileMenu(final JMenu fileMenu) {
@@ -172,8 +185,8 @@ public class MainMenuBar extends JMenuBar {
         fileMenu.add(createSaveAllItem());
         fileMenu.addSeparator();
 
-        recentFiles = new JMenu("Recent Files");
-        fileMenu.add(recentFiles);
+        recentFilesMenu = new JMenu("Recent Files");
+        fileMenu.add(recentFilesMenu);
 
         clearRecentFiles = createClearRecentItem();
         fileMenu.add(clearRecentFiles);
@@ -198,8 +211,8 @@ public class MainMenuBar extends JMenuBar {
     private JMenuItem createClearRecentItem() {
         JMenuItem jMenuItem = new JMenuItem("Clear Recent Files");
         jMenuItem.addActionListener(e -> {
-            RecentFiles.paths.clear();
-            RecentFiles.save();
+            recentFiles.clear();
+            recentFiles.save();
             updateRecentFiles();
         });
 

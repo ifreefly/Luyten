@@ -44,7 +44,7 @@ public class MainWindow extends JFrame {
     private FileDialog fileDialog;
     private FileSaver fileSaver;
     private CodeTabbedPane contentTabbedPane;
-    public MainMenuBar mainMenuBar;
+    private MainMenuBar mainMenuBar;
 
     public MainWindow() {
         configSaver = ConfigSaver.getLoadedInstance();
@@ -78,8 +78,6 @@ public class MainWindow extends JFrame {
 
         contentTabbedPane = new CodeTabbedPane(this);
         this.getContentPane().add(contentTabbedPane);
-
-        if (RecentFiles.load() > 0) mainMenuBar.updateRecentFiles();
     }
 
     private JSplitPane createStatusSplitPane() {
@@ -133,8 +131,8 @@ public class MainWindow extends JFrame {
         }
     }
 
-    public void onCloseFileMenu() {
-        this.getModel().closeFile();
+    public void updateRecentFiles(File file) {
+        mainMenuBar.addRecentFile(file);
     }
 
     public void onSaveAsMenu() {

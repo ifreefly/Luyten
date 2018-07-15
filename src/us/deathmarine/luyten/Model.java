@@ -639,8 +639,7 @@ public class Model extends JSplitPane {
             closeFile();
         this.file = file;
 
-        RecentFiles.add(file.getAbsolutePath());
-        mainWindow.mainMenuBar.updateRecentFiles();
+        mainWindow.updateRecentFiles(file);
         loadTree();
     }
 

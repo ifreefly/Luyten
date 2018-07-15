@@ -2,14 +2,15 @@ package us.deathmarine.luyten;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 public class RecentFiles {
 
-	public static ArrayList<String> paths = new ArrayList<>();
-	private static Preferences prefs = Preferences.userNodeForPackage(RecentFiles.class);
+	private List<String> paths = new ArrayList<>();
+	private Preferences prefs = Preferences.userNodeForPackage(RecentFiles.class);
 	
-	public static int load() {
+	public int load() {
 		boolean saveNeeded = false;
 		
 		String serializedPaths = prefs.get("recentFiles", null);
@@ -30,7 +31,7 @@ public class RecentFiles {
 		return paths.size();
 	}
 	
-	public static void add(String path) {
+	public void add(String path) {
 		if (paths.contains(path)) {
 			paths.remove(path);
 			paths.add(path);
@@ -43,7 +44,7 @@ public class RecentFiles {
 		save();
 	}
 	
-	public static void save() {
+	public void save() {
 		if (paths.size() == 0) {
 			prefs.put("recentFiles", "");
 			return;
@@ -54,13 +55,21 @@ public class RecentFiles {
 		for (int i = 0; i < paths.size(); i++) {
 			if (i != 0) sb.append(',');
 			
-			/*if (!new File(paths.get(i)).exists()) {
-				paths.remove(i);
-				continue;
-			}*/
 			sb.append("\"").append(paths.get(i)).append("\"");
 		}
 		
 		prefs.put("recentFiles", sb.toString());
 	}
+
+	public boolean isEmpty() {
+	    return paths.isEmpty();
+    }
+
+    public List<String> getRecentFiles(){
+	    return paths;
+    }
+
+    public void clear() {
+	    paths.clear();
+    }
 }
