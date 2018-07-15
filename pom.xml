@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>idevcod</groupId>
 	<artifactId>ng-jd-gui</artifactId>
-	<version>0.5.4</version>
+	<version>0.5.5</version>
 
     <properties>
         <mainClassPackage>us.deathmarine.luyten</mainClassPackage>
