@@ -287,7 +287,7 @@ public class MainWindow extends JFrame {
         String themeXml = luytenPrefs.getThemeXml();
 
         contentTabbedPane.changeTheme(themeXml);
-//        luytenPrefs.setFont_size(this.getModel().getTheme().baseFont.getSize());
+        //  luytenPrefs.setFont_size(this.getModel().getTheme().baseFont.getSize());
     }
 
     public void onSettingsChanged() {
@@ -319,8 +319,7 @@ public class MainWindow extends JFrame {
     public void setWindowTitle(String title) {
         if (title == null) {
             this.setTitle(TITLE);
-        }
-        else {
+        } else {
             this.setTitle(TITLE + " - " + title);
         }
     }

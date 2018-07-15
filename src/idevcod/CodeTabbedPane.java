@@ -28,7 +28,7 @@ public class CodeTabbedPane extends JTabbedPane {
                     return;
                 }
 
-                window.setTitle(model.getFullName());
+                window.setWindowTitle(model.getFullName());
             }
         });
     }
@@ -66,10 +66,8 @@ public class CodeTabbedPane extends JTabbedPane {
                 addModel(file, fullName);
             } else {
                 setSelectedIndex(index);
+                window.setWindowTitle(fullName);
             }
-
-            // TODO 添加的时候标题被重复设置了，需要优化
-            window.setWindowTitle(fullName);
         } catch (IOException e) {
             Luyten.showExceptionDialog("Exception!", e);
         }
