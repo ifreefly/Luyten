@@ -101,7 +101,19 @@ public class CodeTabbedPane extends JTabbedPane {
         if (model.getTabCount() > 0) {
             model.closeCurrentTab();
         } else {
-            remove(model);
+            closeModel(model);
+        }
+    }
+
+    public void changeTheme(String themeXml) {
+        int count = getTabCount();
+        if (count == 0) {
+            return;
+        }
+
+        for (int i = 0; i < count; i++) {
+            Model model = (Model) getComponentAt(i);
+            model.changeTheme(themeXml);
         }
     }
 
@@ -114,8 +126,7 @@ public class CodeTabbedPane extends JTabbedPane {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            model.closeFile();
-            remove(model);
+            closeModel(model);
         }
     }
 

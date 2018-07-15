@@ -284,8 +284,10 @@ public class MainWindow extends JFrame {
     }
 
     public void onThemesChanged() {
-        this.getModel().changeTheme(luytenPrefs.getThemeXml());
-        luytenPrefs.setFont_size(this.getModel().getTheme().baseFont.getSize());
+        String themeXml = luytenPrefs.getThemeXml();
+
+        contentTabbedPane.changeTheme(themeXml);
+//        luytenPrefs.setFont_size(this.getModel().getTheme().baseFont.getSize());
     }
 
     public void onSettingsChanged() {
