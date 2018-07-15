@@ -15,7 +15,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.Toolkit;
@@ -153,12 +152,7 @@ public class MainMenuBar extends JMenuBar {
             }
 
             JMenuItem menuItem = new JMenuItem(path);
-            menuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    mainWindow.getModel().loadFile(file);
-                }
-            });
+            menuItem.addActionListener(e -> mainWindow.getModel().loadFile(file));
             recentFiles.add(menuItem);
         }
 
@@ -167,7 +161,7 @@ public class MainMenuBar extends JMenuBar {
 
     private void buildFileMenu(final JMenu fileMenu) {
         fileMenu.removeAll();
-        fileMenu.add(createOpenFileItem(fileMenu));
+        fileMenu.add(createOpenFileItem());
         fileMenu.addSeparator();
 
         fileMenu.add(createCloseFileItem());
@@ -196,25 +190,17 @@ public class MainMenuBar extends JMenuBar {
     private JMenuItem createExitItem() {
         JMenuItem menuItem = new JMenuItem("Exit");
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
-        menuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mainWindow.onExitMenu();
-            }
-        });
+        menuItem.addActionListener(e -> mainWindow.onExitMenu());
 
         return menuItem;
     }
 
     private JMenuItem createClearRecentItem() {
         JMenuItem jMenuItem = new JMenuItem("Clear Recent Files");
-        jMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                RecentFiles.paths.clear();
-                RecentFiles.save();
-                updateRecentFiles();
-            }
+        jMenuItem.addActionListener(e -> {
+            RecentFiles.paths.clear();
+            RecentFiles.save();
+            updateRecentFiles();
         });
 
         return jMenuItem;
@@ -225,12 +211,7 @@ public class MainMenuBar extends JMenuBar {
         menuItem = new JMenuItem("Save All...");
         menuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        menuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mainWindow.onSaveAllMenu();
-            }
-        });
+        menuItem.addActionListener(e -> mainWindow.onSaveAllMenu());
         return menuItem;
     }
 
@@ -239,12 +220,7 @@ public class MainMenuBar extends JMenuBar {
         menuItem = new JMenuItem("Save As...");
         menuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        menuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mainWindow.onSaveAsMenu();
-            }
-        });
+        menuItem.addActionListener(e -> mainWindow.onSaveAsMenu());
         return menuItem;
     }
 
@@ -253,31 +229,15 @@ public class MainMenuBar extends JMenuBar {
         menuItem = new JMenuItem("Close File");
         menuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_W, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        menuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JTabbedPane house = mainWindow.getModel().house;
-
-                if (e.getModifiers() != ActionEvent.CTRL_MASK || house.getTabCount() == 0)
-                    mainWindow.onCloseFileMenu();
-                else {
-                    mainWindow.getModel().closeOpenTab(house.getSelectedIndex());
-                }
-            }
-        });
+        menuItem.addActionListener(e -> mainWindow.closeFile());
         return menuItem;
     }
 
-    private JMenuItem createOpenFileItem(JMenu fileMenu) {
+    private JMenuItem createOpenFileItem() {
         JMenuItem menuItem = new JMenuItem("Open File...");
         menuItem.setAccelerator(
                 KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        menuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                mainWindow.onOpenFileMenu();
-            }
-        });
+        menuItem.addActionListener(e -> mainWindow.onOpenFileMenu());
 
         return menuItem;
     }

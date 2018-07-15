@@ -50,7 +50,11 @@ public class CodeTabbedPane extends JTabbedPane {
     }
 
     public Model getCodeModel() {
-        return (Model) getComponentAt(getSelectedIndex() - 1);
+        if (getTabCount() == 0) {
+            return null;
+        }
+
+        return (Model) getComponentAt(getSelectedIndex());
     }
 
 
@@ -88,6 +92,19 @@ public class CodeTabbedPane extends JTabbedPane {
         setSelectedIndex(index);
     }
 
+    public void closeFile() {
+        Model model = getCodeModel();
+        if (model == null) {
+            return;
+        }
+
+        if (model.getTabCount() > 0) {
+            model.closeCurrentTab();
+        } else {
+            remove(model);
+        }
+    }
+
     private class CloseTab extends MouseAdapter {
         private Model model;
 
@@ -100,5 +117,10 @@ public class CodeTabbedPane extends JTabbedPane {
             model.closeFile();
             remove(model);
         }
+    }
+
+    private void closeModel(Model model) {
+        model.closeFile();
+        remove(model);
     }
 }
