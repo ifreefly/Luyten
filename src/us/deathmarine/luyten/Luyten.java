@@ -1,5 +1,7 @@
 package us.deathmarine.luyten;
 
+import idevcod.windows.AppIdRegisterUtil;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -38,6 +40,17 @@ public class Luyten {
     private static final AtomicReference<MainWindow> mainWindowRef = new AtomicReference<>();
 
     public static void main(String[] args) {
+        String osName = System.getProperty("os.name");
+        if (osName.startsWith("Windows")) {
+            try {
+                AppIdRegisterUtil.setCurrentProcessExplicitAppUserModelID("ng-jd-gui-2018-hello");
+                System.out.println(AppIdRegisterUtil.getCurrentProcessExplicitAppUserModelID());
+            } catch (RuntimeException e) {
+                System.out.println("hello");
+                e.printStackTrace();
+            }
+        }
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
@@ -53,10 +66,10 @@ public class Luyten {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                    mainWindowRef.compareAndSet(null, new MainWindow());
-                        // Already set - so add the files to open
-                    processPendingFiles(fileFromCommandLine);
-                    mainWindowRef.get().setVisible(true);
+                mainWindowRef.compareAndSet(null, new MainWindow());
+                // Already set - so add the files to open
+                processPendingFiles(fileFromCommandLine);
+                mainWindowRef.get().setVisible(true);
             }
         });
     }
