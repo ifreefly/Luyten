@@ -102,7 +102,7 @@ public class FindAllBox extends JDialog {
 					String[] array = entryName.split("/");
 					if (entryName.toLowerCase().endsWith(".class")) {
 						String internalName = StringUtilities.removeRight(entryName, ".class");
-						TypeReference type = Model.metadataSystem.lookupType(internalName);
+						TypeReference type = mainWindow.getMetadataSystem().lookupType(internalName);
 						try {
 							mainWindow.getModel().extractClassToTextPane(type, array[array.length - 1], entryName,
 									null);
@@ -223,8 +223,8 @@ public class FindAllBox extends JDialog {
 									if (entry.getName().endsWith(".class")) {
 										synchronized (settings) {
 											String internalName = StringUtilities.removeRight(entry.getName(), ".class");
-											TypeReference type = Model.metadataSystem.lookupType(internalName);
-											TypeDefinition resolvedType = null;
+											TypeReference type = mainWindow.getMetadataSystem().lookupType(internalName);
+											TypeDefinition resolvedType;
 											if (type == null || ((resolvedType = type.resolve()) == null)) {
 												throw new Exception("Unable to resolve type.");
 											}

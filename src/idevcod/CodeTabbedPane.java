@@ -1,5 +1,6 @@
 package idevcod;
 
+import com.strobel.assembler.metadata.MetadataSystem;
 import us.deathmarine.luyten.Luyten;
 import us.deathmarine.luyten.MainWindow;
 import us.deathmarine.luyten.Model;
@@ -57,6 +58,13 @@ public class CodeTabbedPane extends JTabbedPane {
         return (Model) getComponentAt(getSelectedIndex());
     }
 
+    public MetadataSystem getMetadataSystem() {
+        if (getTabCount() == 0) {
+            return null;
+        }
+
+        return ((Model) getComponentAt(getSelectedIndex())).getMetadataSystem();
+    }
 
     public void loadFile(File file) {
         try {

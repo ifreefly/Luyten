@@ -1,5 +1,6 @@
 package us.deathmarine.luyten;
 
+import com.strobel.assembler.metadata.MetadataSystem;
 import idevcod.CodeTabbedPane;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
@@ -330,6 +331,10 @@ public class MainWindow extends JFrame {
 
     public void closeFile() {
         contentTabbedPane.closeFile();
+    }
+
+    public MetadataSystem getMetadataSystem() {
+        return contentTabbedPane.getMetadataSystem();
     }
 
     private void adjustWindowPositionBySavedState() {

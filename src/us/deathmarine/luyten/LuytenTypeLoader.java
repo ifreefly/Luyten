@@ -11,7 +11,7 @@ public final class LuytenTypeLoader implements ITypeLoader {
 	private final List<ITypeLoader> _typeLoaders;
 
 	public LuytenTypeLoader() {
-		_typeLoaders = new ArrayList<ITypeLoader>();
+		_typeLoaders = new ArrayList<>();
 		_typeLoaders.add(new InputTypeLoader());
 	}
 
