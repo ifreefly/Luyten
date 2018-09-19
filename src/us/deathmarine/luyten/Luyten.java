@@ -43,7 +43,7 @@ public class Luyten {
         String osName = System.getProperty("os.name");
         if (osName.startsWith("Windows")) {
             try {
-                AppIdRegisterUtil.setCurrentProcessExplicitAppUserModelID("ng-jd-gui-2018-hello");
+                AppIdRegisterUtil.setCurrentProcessExplicitAppUserModelID("ng-jd-gui-2018");
                 System.out.println(AppIdRegisterUtil.getCurrentProcessExplicitAppUserModelID());
             } catch (RuntimeException e) {
                 System.out.println("hello");
