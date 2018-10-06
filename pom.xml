@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>idevcod</groupId>
     <artifactId>ng-jd-gui</artifactId>
-    <version>0.6.1</version>
+    <version>0.6.2</version>
 
     <properties>
         <mainClassPackage>us.deathmarine.luyten</mainClassPackage>
@@ -14,32 +14,32 @@
         <dependency>
             <groupId>com.fifesoft</groupId>
             <artifactId>rsyntaxtextarea</artifactId>
-            <version>LATEST</version>
+            <version>2.6.1</version>
         </dependency>
         <dependency>
             <groupId>com.apple</groupId>
             <artifactId>AppleJavaExtensions</artifactId>
-            <version>LATEST</version>
+            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>org.bitbucket.mstrobel</groupId>
             <artifactId>procyon-core</artifactId>
-            <version>LATEST</version>
+            <version>0.5.33</version>
         </dependency>
         <dependency>
             <groupId>org.bitbucket.mstrobel</groupId>
             <artifactId>procyon-expressions</artifactId>
-            <version>LATEST</version>
+            <version>0.5.33</version>
         </dependency>
         <dependency>
             <groupId>org.bitbucket.mstrobel</groupId>
             <artifactId>procyon-reflection</artifactId>
-            <version>LATEST</version>
+            <version>0.5.33</version>
         </dependency>
         <dependency>
             <groupId>org.bitbucket.mstrobel</groupId>
             <artifactId>procyon-compilertools</artifactId>
-            <version>LATEST</version>
+            <version>0.5.33</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
         <dependency>
